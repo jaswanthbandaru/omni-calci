@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            text-align: center;
+            position: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Loan Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+        <div class="input-group">
+            <label for="principal">Loan Amount (₹):</label>
+            <input type="number" id="principal" placeholder="Enter loan amount">
+        </div>
+        <div class="input-group">
+            <label for="rate">Annual Interest Rate (%):</label>
+            <input type="number" id="rate" placeholder="Enter interest rate">
+        </div>
+        <div class="input-group">
+            <label for="tenure">Loan Tenure (Years):</label>
+            <input type="number" id="tenure" placeholder="Enter tenure in years">
+        </div>
+        <button onclick="calculateLoan()">Calculate</button>
+        <div id="result" class="result"></div>
+    </div>
+    <script>
+        function toggleTheme() {
+            const theme = document.body.getAttribute('data-theme');
+            const toggleButton = document.querySelector('.theme-toggle i');
+            if (theme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                toggleButton.className = 'fas fa-sun';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                toggleButton.className = 'fas fa-moon';
+            }
+        }
+
+        function calculateLoan() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const tenure = parseInt(document.getElementById('tenure').value);
+
+            if (isNaN(principal) || isNaN(rate) || isNaN(tenure) || principal <= 0 || rate <= 0 || tenure <= 0) {
+                document.getElementById('result').textContent = 'Please enter valid inputs.';
+                return;
+            }
+
+            const totalAmount = principal * (1 + rate * tenure);
+            const interest = totalAmount - principal;
+            document.getElementById('result').textContent = `Total Amount Payable: ₹${totalAmount.toFixed(2)} | Interest: ₹${interest.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

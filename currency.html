@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:last-child {
+            margin-right: 0;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--primary-color);
+            text-align: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .rate-info {
+            margin-top: 10px;
+            color: var(--secondary-color);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .history-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .history-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .theme-toggle {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .input-group {
+                display: block;
+            }
+            
+            button {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Currency Converter</h1>
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" min="0" step="0.01" value="1" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label for="fromCurrency">From Currency:</label>
+                <select id="fromCurrency">
+                    <option value="USD" selected>USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="toCurrency">To Currency:</label>
+                <select id="toCurrency">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR" selected>EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                </select>
+            </div>
+
+            <div class="button-container">
+                <button id="convertBtn">Convert</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            1 USD = 0.92 EUR
+        </div>
+        
+        <div class="rate-info" id="rateInfo">
+            Exchange rate: 1 USD = 0.92 EUR (Last updated: March 23, 2025)
+        </div>
+        
+        <div class="history card">
+            <h3>Conversion History</h3>
+            <div id="historyList">
+                <div class="history-item">
+                    <span>1 USD to EUR</span>
+                    <span>0.92 EUR</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample exchange rates (as of hypothetical date)
+        const exchangeRates = {
+            USD: 1.00,
+            EUR: 0.92,
+            GBP: 0.78,
+            JPY: 110.45,
+            CAD: 1.35,
+            AUD: 1.48,
+            CNY: 7.17,
+            INR: 83.25,
+            BRL: 5.18,
+            CHF: 0.89
+        };
+        
+        // Theme toggling
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Set initial theme based on user preference or localStorage
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDarkScheme.matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Format currency
+        function formatCurrency(amount, currency) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+        
+        // Conversion function
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            
+            if (isNaN(amount)) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // Convert to USD first (as base currency), then to target currency
+            const amountInUSD = amount / exchangeRates[fromCurrency];
+            const convertedAmount = amountInUSD * exchangeRates[toCurrency];
+            
+            // Display result
+            document.getElementById('result').textContent = 
+                `${formatCurrency(amount, fromCurrency)} = ${formatCurrency(convertedAmount, toCurrency)}`;
+            
+            // Update rate info
+            const rate = exchangeRates[toCurrency] / exchangeRates[fromCurrency];
+            document.getElementById('rateInfo').textContent = 
+                `Exchange rate: 1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency} (Last updated: March 23, 2025)`;
+            
+            // Add to history
+            addToHistory(amount, fromCurrency, convertedAmount, toCurrency);
+        }
+        
+        // Add conversion to history
+        function addToHistory(fromAmount, fromCurrency, toAmount, toCurrency) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            
+            const fromText = document.createElement('span');
+            fromText.textContent = `${fromAmount} ${fromCurrency} to ${toCurrency}`;
+            
+            const toText = document.createElement('span');
+            toText.textContent = `${toAmount.toFixed(2)} ${toCurrency}`;
+            
+            historyItem.appendChild(fromText);
+            historyItem.appendChild(toText);
+            
+            const historyList = document.getElementById('historyList');
+            historyList.insertBefore(historyItem, historyList.firstChild);
+        }
+        
+        // Clear function
+        function clearValues() {
+            document.getElementById('amount').value = '1';
+            document.getElementById('fromCurrency').value = 'USD';
+            document.getElementById('toCurrency').value = 'EUR';
+            document.getElementById('result').textContent = '1 USD = 0.92 EUR';
+            document.getElementById('rateInfo').textContent = 'Exchange rate: 1 USD = 0.92 EUR (Last updated: March 23, 2025)';
+            document.getElementById('historyList').innerHTML = '';
+        }
+        
+        // Event listeners
+        document.getElementById('convertBtn').addEventListener('click', convertCurrency);
+        document.getElementById('clearBtn').addEventListener('click', clearValues);
+        
+        // Also convert on Enter key
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertCurrency();
+            }
+        });
+        
+        // Initialize
+        convertCurrency();
+    </script>
+</body>
+</html>

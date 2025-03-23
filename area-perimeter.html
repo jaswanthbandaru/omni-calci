@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area & Perimeter Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 700px;
+            background-color: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        select, input, button {
+            width: calc(100% - 20px);
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            background-color: var(--card-bg);
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            font-weight: bold;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Area & Perimeter Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <select id="shape" onchange="showInputs()">
+            <option value="">Select Shape</option>
+            <option value="square">Square</option>
+            <option value="rectangle">Rectangle</option>
+            <option value="circle">Circle</option>
+            <option value="triangle">Triangle</option>
+            <option value="cube">Cube</option>
+            <option value="cuboid">Cuboid</option>
+            <option value="sphere">Sphere</option>
+            <option value="cylinder">Cylinder</option>
+            <option value="cone">Cone</option>
+        </select>
+
+        <div id="inputs"></div>
+
+        <button onclick="calculate()">Calculate</button>
+
+        <div id="result" class="result">Results will appear here.</div>
+    </div>
+    <script>
+        function toggleTheme() {
+            const theme = document.body.getAttribute('data-theme');
+            document.body.setAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+            
+            // Update icon based on theme
+            const icon = document.querySelector('.theme-toggle i');
+            if (theme === 'light') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+        
+        function showInputs() {
+            const shape = document.getElementById('shape').value;
+            const inputs = document.getElementById('inputs');
+            inputs.innerHTML = '';
+            
+            // 2D shapes
+            if (shape === 'square') {
+                inputs.innerHTML = 'Side: <input type="number" id="side" step="0.01">';
+            } else if (shape === 'rectangle') {
+                inputs.innerHTML = 'Length: <input type="number" id="length" step="0.01"> Width: <input type="number" id="width" step="0.01">';
+            } else if (shape === 'circle') {
+                inputs.innerHTML = 'Radius: <input type="number" id="radius" step="0.01">';
+            } else if (shape === 'triangle') {
+                inputs.innerHTML = 'Side A: <input type="number" id="sideA" step="0.01"> Side B: <input type="number" id="sideB" step="0.01"> Side C: <input type="number" id="sideC" step="0.01"> Height: <input type="number" id="height" step="0.01">';
+            } 
+            // 3D shapes
+            else if (shape === 'cube') {
+                inputs.innerHTML = 'Side: <input type="number" id="side" step="0.01">';
+            } else if (shape === 'cuboid') {
+                inputs.innerHTML = 'Length: <input type="number" id="length" step="0.01"> Width: <input type="number" id="width" step="0.01"> Height: <input type="number" id="height" step="0.01">';
+            } else if (shape === 'sphere') {
+                inputs.innerHTML = 'Radius: <input type="number" id="radius" step="0.01">';
+            } else if (shape === 'cylinder') {
+                inputs.innerHTML = 'Radius: <input type="number" id="radius" step="0.01"> Height: <input type="number" id="height" step="0.01">';
+            } else if (shape === 'cone') {
+                inputs.innerHTML = 'Radius: <input type="number" id="radius" step="0.01"> Height: <input type="number" id="height" step="0.01"> Slant Height: <input type="number" id="slantHeight" step="0.01">';
+            }
+        }
+        
+        function calculate() {
+            const shape = document.getElementById('shape').value;
+            let result = '';
+            
+            // Validate shape selection
+            if (!shape) {
+                document.getElementById('result').innerHTML = 'Please select a shape first.';
+                return;
+            }
+            
+            try {
+                // 2D shapes
+                if (shape === 'square') {
+                    const side = parseFloat(document.getElementById('side').value);
+                    validateInputs(side);
+                    const area = side ** 2;
+                    const perimeter = 4 * side;
+                    result = `Area: ${area.toFixed(2)}, Perimeter: ${perimeter.toFixed(2)}`;
+                } 
+                else if (shape === 'rectangle') {
+                    const length = parseFloat(document.getElementById('length').value);
+                    const width = parseFloat(document.getElementById('width').value);
+                    validateInputs(length, width);
+                    const area = length * width;
+                    const perimeter = 2 * (length + width);
+                    result = `Area: ${area.toFixed(2)}, Perimeter: ${perimeter.toFixed(2)}`;
+                } 
+                else if (shape === 'circle') {
+                    const radius = parseFloat(document.getElementById('radius').value);
+                    validateInputs(radius);
+                    const area = Math.PI * radius ** 2;
+                    const circumference = 2 * Math.PI * radius;
+                    result = `Area: ${area.toFixed(2)}, Circumference: ${circumference.toFixed(2)}`;
+                } 
+                else if (shape === 'triangle') {
+                    const sideA = parseFloat(document.getElementById('sideA').value);
+                    const sideB = parseFloat(document.getElementById('sideB').value);
+                    const sideC = parseFloat(document.getElementById('sideC').value);
+                    const height = parseFloat(document.getElementById('height').value);
+                    validateInputs(sideA, sideB, sideC, height);
+                    
+                    // Check if triangle is valid
+                    if (sideA + sideB <= sideC || sideA + sideC <= sideB || sideB + sideC <= sideA) {
+                        throw new Error("Invalid triangle: sum of any two sides must be greater than the third side");
+                    }
+                    
+                    const base = sideC; // Using sideC as base
+                    const area = 0.5 * base * height;
+                    const perimeter = sideA + sideB + sideC;
+                    result = `Area: ${area.toFixed(2)}, Perimeter: ${perimeter.toFixed(2)}`;
+                }
+                // 3D shapes
+                else if (shape === 'cube') {
+                    const side = parseFloat(document.getElementById('side').value);
+                    validateInputs(side);
+                    const volume = side ** 3;
+                    const surfaceArea = 6 * side ** 2;
+                    result = `Volume: ${volume.toFixed(2)}, Surface Area: ${surfaceArea.toFixed(2)}`;
+                } 
+                else if (shape === 'cuboid') {
+                    const length = parseFloat(document.getElementById('length').value);
+                    const width = parseFloat(document.getElementById('width').value);
+                    const height = parseFloat(document.getElementById('height').value);
+                    validateInputs(length, width, height);
+                    const volume = length * width * height;
+                    const surfaceArea = 2 * (length * width + length * height + width * height);
+                    result = `Volume: ${volume.toFixed(2)}, Surface Area: ${surfaceArea.toFixed(2)}`;
+                } 
+                else if (shape === 'sphere') {
+                    const radius = parseFloat(document.getElementById('radius').value);
+                    validateInputs(radius);
+                    const volume = (4/3) * Math.PI * radius ** 3;
+                    const surfaceArea = 4 * Math.PI * radius ** 2;
+                    result = `Volume: ${volume.toFixed(2)}, Surface Area: ${surfaceArea.toFixed(2)}`;
+                } 
+                else if (shape === 'cylinder') {
+                    const radius = parseFloat(document.getElementById('radius').value);
+                    const height = parseFloat(document.getElementById('height').value);
+                    validateInputs(radius, height);
+                    const volume = Math.PI * radius ** 2 * height;
+                    const surfaceArea = 2 * Math.PI * radius * (radius + height);
+                    result = `Volume: ${volume.toFixed(2)}, Surface Area: ${surfaceArea.toFixed(2)}`;
+                } 
+                else if (shape === 'cone') {
+                    const radius = parseFloat(document.getElementById('radius').value);
+                    const height = parseFloat(document.getElementById('height').value);
+                    const slantHeight = parseFloat(document.getElementById('slantHeight').value);
+                    validateInputs(radius, height, slantHeight);
+                    
+                    // Verify slant height is valid
+                    const calculatedSlantHeight = Math.sqrt(radius**2 + height**2);
+                    if (Math.abs(slantHeight - calculatedSlantHeight) > 0.01) {
+                        throw new Error(`Invalid slant height. Expected value close to ${calculatedSlantHeight.toFixed(2)}`);
+                    }
+                    
+                    const volume = (1/3) * Math.PI * radius ** 2 * height;
+                    const surfaceArea = Math.PI * radius * (radius + slantHeight);
+                    result = `Volume: ${volume.toFixed(2)}, Surface Area: ${surfaceArea.toFixed(2)}`;
+                }
+                
+                document.getElementById('result').innerHTML = result;
+            } catch (error) {
+                document.getElementById('result').innerHTML = error.message;
+            }
+        }
+        
+        function validateInputs(...values) {
+            for (const value of values) {
+                if (isNaN(value) || value <= 0) {
+                    throw new Error("All values must be positive numbers.");
+                }
+            }
+        }
+        
+        // Initialize theme icon on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const theme = document.body.getAttribute('data-theme');
+            const icon = document.querySelector('.theme-toggle i');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            }
+        });
+    </script>
+</body>
+</html>

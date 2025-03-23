@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+            --result-bg: #f0f7ff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+            --result-bg: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+            color: var(--text-color);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: var(--result-bg);
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+        <h1>Unit Converter</h1>
+        
+        <div class="input-group">
+            <label for="category">Category:</label>
+            <select id="category">
+                <option value="length">Length</option>
+                <option value="weight">Weight</option>
+                <option value="temperature">Temperature</option>
+                <option value="area">Area</option>
+                <option value="volume">Volume</option>
+                <option value="time">Time</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="fromValue">Value:</label>
+            <input type="number" id="fromValue" placeholder="Enter value">
+        </div>
+        
+        <div class="input-group">
+            <label for="fromUnit">From:</label>
+            <select id="fromUnit"></select>
+        </div>
+        
+        <div class="input-group">
+            <label for="toUnit">To:</label>
+            <select id="toUnit"></select>
+        </div>
+        
+        <button id="convert">Convert</button>
+        
+        <div class="result" id="result">
+            <span id="resultText"></span>
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 Unit Converter
+        </div>
+    </div>
+
+    <script>
+        const units = {
+            length: {
+                meter: 1,
+                kilometer: 1000,
+                centimeter: 0.01,
+                millimeter: 0.001,
+                inch: 0.0254,
+                foot: 0.3048,
+                yard: 0.9144,
+                mile: 1609.34
+            },
+            weight: {
+                gram: 1,
+                kilogram: 1000,
+                milligram: 0.001,
+                pound: 453.592,
+                ounce: 28.3495,
+                ton: 907185
+            },
+            temperature: {
+                celsius: 'c',
+                fahrenheit: 'f',
+                kelvin: 'k'
+            },
+            area: {
+                'square meter': 1,
+                'square kilometer': 1000000,
+                'square centimeter': 0.0001,
+                'square millimeter': 0.000001,
+                'square inch': 0.00064516,
+                'square foot': 0.092903,
+                'square yard': 0.836127,
+                'acre': 4046.86,
+                'hectare': 10000
+            },
+            volume: {
+                'cubic meter': 1,
+                liter: 0.001,
+                milliliter: 0.000001,
+                'cubic inch': 0.0000163871,
+                'cubic foot': 0.0283168,
+                'gallon (US)': 0.00378541,
+                'quart (US)': 0.000946353,
+                'pint (US)': 0.000473176,
+                'cup (US)': 0.000236588
+            },
+            time: {
+                second: 1,
+                minute: 60,
+                hour: 3600,
+                day: 86400,
+                week: 604800,
+                month: 2592000,
+                year: 31536000
+            }
+        };
+
+        // Populate unit select elements based on category
+        function populateUnits(category) {
+            const fromUnitSelect = document.getElementById('fromUnit');
+            const toUnitSelect = document.getElementById('toUnit');
+            
+            // Clear previous options
+            fromUnitSelect.innerHTML = '';
+            toUnitSelect.innerHTML = '';
+            
+            // Add new options based on category
+            const categoryUnits = units[category];
+            for (const unit in categoryUnits) {
+                const fromOption = document.createElement('option');
+                fromOption.value = unit;
+                fromOption.textContent = unit;
+                fromUnitSelect.appendChild(fromOption);
+                
+                const toOption = document.createElement('option');
+                toOption.value = unit;
+                toOption.textContent = unit;
+                toUnitSelect.appendChild(toOption);
+            }
+            
+            // Set default "to" unit to something different if possible
+            if (toUnitSelect.options.length > 1) {
+                toUnitSelect.selectedIndex = 1;
+            }
+        }
+        
+        // Perform the conversion and display result
+        function convert() {
+            const category = document.getElementById('category').value;
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            if (isNaN(fromValue)) {
+                alert('Please enter a valid number');
+                return;
+            }
+            
+            let result;
+            
+            // Special case for temperature
+            if (category === 'temperature') {
+                result = convertTemperature(fromValue, fromUnit, toUnit);
+            } else {
+                // For other units, use the conversion factors
+                const fromFactor = units[category][fromUnit];
+                const toFactor = units[category][toUnit];
+                result = (fromValue * fromFactor) / toFactor;
+            }
+            
+            // Display the result
+            const resultElement = document.getElementById('result');
+            const resultTextElement = document.getElementById('resultText');
+            
+            resultTextElement.textContent = `${fromValue} ${fromUnit} = ${result.toFixed(6)} ${toUnit}`;
+            resultElement.classList.add('show');
+        }
+        
+        // Temperature conversion function
+        function convertTemperature(value, fromUnit, toUnit) {
+            // Convert to Celsius first
+            let celsius;
+            if (fromUnit === 'celsius') {
+                celsius = value;
+            } else if (fromUnit === 'fahrenheit') {
+                celsius = (value - 32) * 5/9;
+            } else if (fromUnit === 'kelvin') {
+                celsius = value - 273.15;
+            }
+            
+            // Convert from Celsius to target unit
+            if (toUnit === 'celsius') {
+                return celsius;
+            } else if (toUnit === 'fahrenheit') {
+                return celsius * 9/5 + 32;
+            } else if (toUnit === 'kelvin') {
+                return celsius + 273.15;
+            }
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate initial units
+            populateUnits('length');
+            
+            // Set up event listeners
+            document.getElementById('category').addEventListener('change', function() {
+                populateUnits(this.value);
+                document.getElementById('result').classList.remove('show');
+            });
+            
+            document.getElementById('convert').addEventListener('click', convert);
+            
+            // Allow Enter key to trigger conversion
+            document.getElementById('fromValue').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convert();
+                }
+            });
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            
+            if (savedTheme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            }
+        });
+    </script>
+</body>
+</html>

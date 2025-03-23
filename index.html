@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omni-Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --background: #f9fafb;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --secondary-text: #6b7280;
+            --shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+            --hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            --border-color: #e5e7eb;
+        }
+
+        .dark {
+            --primary-color: #5b7bf7;
+            --background: #111827;
+            --card-bg: #1f2937;
+            --text-color: #f3f4f6;
+            --secondary-text: #d1d5db;
+            --shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            --hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            --border-color: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 0 80px 0; /* Added bottom padding for mobile nav */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            background-color: var(--background);
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: var(--secondary-text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            height: 100%;
+        }
+
+        .card:hover, .card:active {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+            border-color: var(--primary-color);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(74, 108, 247, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .card-icon i {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Category tabs for mobile */
+        .mobile-categories {
+            display: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .mobile-categories::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+        
+        .category-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .category-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Mobile bottom navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+        }
+        
+        .mobile-nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--secondary-text);
+        }
+        
+        .mobile-nav-item.active i {
+            color: var(--primary-color);
+        }
+        
+        .mobile-nav-item span {
+            font-size: 0.7rem;
+            color: var(--secondary-text);
+        }
+        
+        .mobile-nav-item.active span {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Search bar for mobile */
+        .search-bar {
+            display: none;
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+        }
+
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 10px;
+            }
+            
+            .card h2 {
+                font-size: 1rem;
+                margin-bottom: 5px;
+            }
+            
+            .card p {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 94%;
+                padding: 15px 0 80px 0;
+            }
+            
+            header {
+                padding: 15px 0;
+                margin-bottom: 15px;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .mobile-categories,
+            .search-bar,
+            .mobile-nav {
+                display: block;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+            
+            .card-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .card h2 {
+                font-size: 0.9rem;
+                margin-bottom: 4px;
+            }
+            
+            .card p {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                display: flex;
+                flex-direction: row;
+                text-align: left;
+                align-items: center;
+                padding: 15px;
+            }
+            
+            .card-icon {
+                margin-bottom: 0;
+                margin-right: 15px;
+            }
+            
+            .card-content {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Omni Calci</h1>
+            </div>
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </div>
+        </header>
+        
+        <!-- Mobile search bar -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search calculators..." id="searchInput">
+        </div>
+        
+        <!-- Mobile category tabs -->
+        <div class="mobile-categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="math">Math</button>
+            <button class="category-btn" data-category="finance">Finance</button>
+            <button class="category-btn" data-category="conversion">Conversion</button>
+            <button class="category-btn" data-category="date">Date & Time</button>
+            <button class="category-btn" data-category="health">Health</button>
+        </div>
+        
+        <div class="grid">
+            <a href="basic.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Basic Calculator</h2>
+                    <p>Simple arithmetic operations</p>
+                </div>
+            </a>
+            <a href="scientific.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-square-root-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Scientific Calculator</h2>
+                    <p>Advanced math functions</p>
+                </div>
+            </a>
+            <a href="age.html" class="card" data-category="date">
+                <div class="card-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Age Calculator</h2>
+                    <p>Calculate age from birthdate</p>
+                </div>
+            </a>
+            <a href="binary.html" class="card" data-category="conversion">
+                <div class="card-icon">
+                    <i class="fa-solid fa-file"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Binary Converter</h2>
+                    <p>Convert between number systems</p>
+                </div>
+            </a>
+            <a href="currency.html" class="card" data-category="finance conversion">
+                <div class="card-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Currency Converter</h2>
+                    <p>Convert between currencies</p>
+                </div>
+            </a>
+            <a href="emi.html" class="card" data-category="finance">
+                <div class="card-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="card-content">
+                    <h2>EMI Calculator</h2>
+                    <p>Calculate monthly installments</p>
+                </div>
+            </a>
+            <a href="loan.html" class="card" data-category="finance">
+                <div class="card-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Loan Calculator</h2>
+                    <p>Calculate loan payments</p>
+                </div>
+            </a>
+            <a href="chit.html" class="card" data-category="finance">
+                <div class="card-icon">
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Chit Fund Calculator</h2>
+                    <p>Calculate chit fund returns</p>
+                </div>
+            </a>
+            <a href="loss-profit.html" class="card" data-category="finance">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Loss/Profit Calculator</h2>
+                    <p>Calculate business margins</p>
+                </div>
+            </a>
+            <a href="quadratic.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-superscript"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Quadratic Solver</h2>
+                    <p>Solve quadratic equations</p>
+                </div>
+            </a>
+            <a href="statistics.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Statistics Calculator</h2>
+                    <p>Statistical analysis tools</p>
+                </div>
+            </a>
+            <a href="unit-converter.html" class="card" data-category="conversion">
+                <div class="card-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Unit Converter</h2>
+                    <p>Convert between units</p>
+                </div>
+            </a>
+            <a href="bmi.html" class="card" data-category="health">
+                <div class="card-icon">
+                    <i class="fas fa-weight"></i>
+                </div>
+                <div class="card-content">
+                    <h2>BMI Calculator</h2>
+                    <p>Calculate body mass index</p>
+                </div>
+            </a>
+            <a href="percentage.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Percentage Calculator</h2>
+                    <p>Calculate percentages</p>
+                </div>
+            </a>
+            <a href="time.html" class="card" data-category="date">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Time Calculator</h2>
+                    <p>Time addition & subtraction</p>
+                </div>
+            </a>
+            <a href="date-difference.html" class="card" data-category="date">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Date Difference</h2>
+                    <p>Calculate days between dates</p>
+                </div>
+            </a>
+            <a href="area-perimeter.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-draw-polygon"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Area & Volume</h2>
+                    <p>Calculate geometric properties</p>
+                </div>
+            </a>
+            <a href="speed-distance-time.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Speed Calculator</h2>
+                    <p>Speed, distance & time</p>
+                </div>
+            </a>
+            <a href="stop-watch.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fa-solid fa-stopwatch"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Stop Watch </h2>
+                    <p>Calculate Laps & Time</p>
+                </div>
+            </a>
+            <a href="password.html" class="card" data-category="math">
+                <div class="card-icon">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div class="card-content">
+                    <h2>Password Generator</h2>
+                    <p>Generate Random Passwords</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+
+    <script>
+        // Theme toggle functionality with localStorage
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        try {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                body.classList.add('dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        } catch (e) {
+            // If localStorage fails, just set a default
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+        
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                try {
+                    localStorage.setItem('theme', 'light');
+                } catch (e) {
+                    // Ignore localStorage errors
+                }
+            } else {
+                body.classList.add('dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                try {
+                    localStorage.setItem('theme', 'dark');
+                } catch (e) {
+                    // Ignore localStorage errors
+                }
+            }
+        });
+        
+        // Category filtering for mobile
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const cards = document.querySelectorAll('.card');
+        
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                const category = btn.getAttribute('data-category');
+                
+                // Show all cards if 'all' is selected, otherwise filter
+                if (category === 'all') {
+                    cards.forEach(card => {
+                        card.style.display = 'flex';
+                    });
+                } else {
+                    cards.forEach(card => {
+                        if (card.getAttribute('data-category').includes(category)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h2').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Reset category buttons to 'all' when searching
+            categoryBtns.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-category="all"]').classList.add('active');
+        });
+        
+        // Mobile nav functionality (simplified - would need more work for full implementation)
+        const navItems = document.querySelectorAll('.mobile-nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                // In a real implementation, you would switch views here
+            });
+        });
+    </script>
+</body>
+</html>

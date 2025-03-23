@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Time Display</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --border-color: #e0e0e0;
+        }
+
+        .dark-theme {
+            --bg-color: #121212;
+            --text-color: #f5f5f5;
+            --card-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --accent-color: #4cc9f0;
+            --secondary-color: #4895ef;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .time-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .date-display {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin: 0 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .format-toggle {
+            margin: 10px 0;
+        }
+
+        .timezone-info {
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+
+        .world-clock {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .world-time {
+            padding: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 10px;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .time-calculator {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .time-input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .operation-select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .result-display {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .time-difference-calculator {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .time-display {
+                font-size: 3rem;
+            }
+            
+            .date-display {
+                font-size: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .world-clock {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time-display {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Interactive Time Display</h1>
+            
+            <div class="theme-toggle">
+                <span>☀️</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span>🌙</span>
+            </div>
+            
+            <div class="time-display" id="time">12:00:00</div>
+            <div class="date-display" id="date">Monday, January 1, 2025</div>
+            
+            <div class="timezone-info" id="timezone">Timezone: UTC+0</div>
+            
+            <div class="format-toggle">
+                <button id="format-toggle">Switch to 12-hour format</button>
+            </div>
+            
+            <div class="controls">
+                <button id="pause-button">Pause</button>
+                <button id="world-clock-button">World Clock</button>
+                <button id="calculator-button">Time Calculator</button>
+            </div>
+        </div>
+        
+        <div class="card" id="world-clock-card" style="display: none;">
+            <h2>World Clock</h2>
+            <div class="world-clock" id="world-clock">
+                <div class="world-time">
+                    <h3>New York</h3>
+                    <div id="new-york-time">Loading...</div>
+                </div>
+                <div class="world-time">
+                    <h3>London</h3>
+                    <div id="london-time">Loading...</div>
+                </div>
+                <div class="world-time">
+                    <h3>Tokyo</h3>
+                    <div id="tokyo-time">Loading...</div>
+                </div>
+                <div class="world-time">
+                    <h3>Sydney</h3>
+                    <div id="sydney-time">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" id="calculator-card" style="display: none;">
+            <h2>Time Calculator</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="add-subtract">Add/Subtract Time</div>
+                <div class="tab" data-tab="difference">Time Difference</div>
+            </div>
+            
+            <div class="tab-content active" id="add-subtract-tab">
+                <div class="time-calculator">
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="start-time">Start Time:</label>
+                            <input type="time" id="start-time" class="time-input" step="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="operation">Operation:</label>
+                            <select id="operation" class="operation-select">
+                                <option value="add">Add</option>
+                                <option value="subtract">Subtract</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Time to Add/Subtract:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="hours" placeholder="Hours" min="0" class="time-input" style="flex: 1;">
+                                <input type="number" id="minutes" placeholder="Minutes" min="0" class="time-input" style="flex: 1;">
+                                <input type="number" id="seconds" placeholder="Seconds" min="0" class="time-input" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <button id="calculate-button">Calculate</button>
+                        
+                        <div class="result-display" id="calculation-result">
+                            Result will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="difference-tab">
+                <div class="time-difference-calculator">
+                    <div class="calculator-form">
+                        <div class="form-group">
+                            <label for="first-time">First Time:</label>
+                            <input type="time" id="first-time" class="time-input" step="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="second-time">Second Time:</label>
+                            <input type="time" id="second-time" class="time-input" step="1">
+                        </div>
+                        
+                        <button id="calculate-difference-button">Calculate Difference</button>
+                        
+                        <div class="result-display" id="difference-result">
+                            Result will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Interactive Time Display &copy; 2025</p>
+    </footer>
+    
+    <script>
+        // DOM Elements
+        const timeDisplay = document.getElementById('time');
+        const dateDisplay = document.getElementById('date');
+        const timezoneInfo = document.getElementById('timezone');
+        const themeToggle = document.getElementById('theme-toggle');
+        const formatToggle = document.getElementById('format-toggle');
+        const pauseButton = document.getElementById('pause-button');
+        const worldClockButton = document.getElementById('world-clock-button');
+        const calculatorButton = document.getElementById('calculator-button');
+        const worldClockCard = document.getElementById('world-clock-card');
+        const calculatorCard = document.getElementById('calculator-card');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Calculator elements
+        const startTime = document.getElementById('start-time');
+        const operation = document.getElementById('operation');
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const calculateButton = document.getElementById('calculate-button');
+        const calculationResult = document.getElementById('calculation-result');
+        
+        // Time difference elements
+        const firstTime = document.getElementById('first-time');
+        const secondTime = document.getElementById('second-time');
+        const calculateDifferenceButton = document.getElementById('calculate-difference-button');
+        const differenceResult = document.getElementById('difference-result');
+        
+        // State variables
+        let is24Hour = true;
+        let isPaused = false;
+        let pausedTime = null;
+        
+        // Initialize the time display
+        function updateTime() {
+            if (isPaused) return;
+            
+            const now = new Date();
+            
+            // Update time display
+            if (is24Hour) {
+                timeDisplay.textContent = now.toLocaleTimeString('en-US', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } else {
+                timeDisplay.textContent = now.toLocaleTimeString('en-US', {
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+            
+            // Update date display
+            dateDisplay.textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Update timezone
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offset = -(now.getTimezoneOffset() / 60);
+            const offsetStr = offset >= 0 ? `+${offset}` : `${offset}`;
+            timezoneInfo.textContent = `Timezone: ${timezone} (UTC${offsetStr})`;
+            
+            // Update world clocks
+            updateWorldClocks();
+        }
+        
+        // Initialize world clocks
+        function updateWorldClocks() {
+            const now = new Date();
+            
+            // New York (UTC-5)
+            const newYorkTime = new Date(now.getTime());
+            newYorkTime.setHours(now.getUTCHours() - 5);
+            document.getElementById('new-york-time').textContent = newYorkTime.toLocaleTimeString();
+            
+            // London (UTC+0)
+            const londonTime = new Date(now.getTime());
+            londonTime.setHours(now.getUTCHours());
+            document.getElementById('london-time').textContent = londonTime.toLocaleTimeString();
+            
+            // Tokyo (UTC+9)
+            const tokyoTime = new Date(now.getTime());
+            tokyoTime.setHours(now.getUTCHours() + 9);
+            document.getElementById('tokyo-time').textContent = tokyoTime.toLocaleTimeString();
+            
+            // Sydney (UTC+11)
+            const sydneyTime = new Date(now.getTime());
+            sydneyTime.setHours(now.getUTCHours() + 11);
+            document.getElementById('sydney-time').textContent = sydneyTime.toLocaleTimeString();
+        }
+        
+        // Time calculation functions
+        function calculateTime() {
+            if (!startTime.value) {
+                calculationResult.textContent = "Please enter a start time";
+                return;
+            }
+            
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            
+            if (hours === 0 && minutes === 0 && seconds === 0) {
+                calculationResult.textContent = "Please enter time to add/subtract";
+                return;
+            }
+            
+            // Parse the start time
+            const [startHour, startMinute, startSecond] = startTime.value.split(':').map(Number);
+            let date = new Date();
+            date.setHours(startHour, startMinute, startSecond || 0);
+            
+            // Calculate milliseconds to add/subtract
+            const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+            
+            if (operation.value === 'add') {
+                date = new Date(date.getTime() + totalMs);
+            } else {
+                date = new Date(date.getTime() - totalMs);
+            }
+            
+            // Format the result
+            const resultTime = date.toLocaleTimeString('en-US', {
+                hour12: !is24Hour,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            calculationResult.textContent = `Result: ${resultTime}`;
+        }
+        
+        function calculateTimeDifference() {
+            if (!firstTime.value || !secondTime.value) {
+                differenceResult.textContent = "Please enter both times";
+                return;
+            }
+            
+            // Parse the times
+            const [firstHour, firstMinute, firstSecond] = firstTime.value.split(':').map(Number);
+            const [secondHour, secondMinute, secondSecond] = secondTime.value.split(':').map(Number);
+            
+            const first = new Date();
+            first.setHours(firstHour, firstMinute, firstSecond || 0);
+            
+            const second = new Date();
+            second.setHours(secondHour, secondMinute, secondSecond || 0);
+            
+            // Calculate the difference in milliseconds
+            let diff = Math.abs(second - first);
+            
+            // Convert to hours, minutes, seconds
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            
+            const minutes = Math.floor(diff / (1000 * 60));
+            diff -= minutes * (1000 * 60);
+            
+            const seconds = Math.floor(diff / 1000);
+            
+            differenceResult.textContent = `Difference: ${hours}h ${minutes}m ${seconds}s`;
+        }
+        
+        // Event Listeners
+        themeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-theme');
+        });
+        
+        formatToggle.addEventListener('click', () => {
+            is24Hour = !is24Hour;
+            formatToggle.textContent = is24Hour ? 'Switch to 12-hour format' : 'Switch to 24-hour format';
+            updateTime();
+        });
+        
+        pauseButton.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+            if (!isPaused) {
+                updateTime();
+            }
+        });
+        
+        worldClockButton.addEventListener('click', () => {
+            calculatorCard.style.display = 'none';
+            worldClockCard.style.display = worldClockCard.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        calculatorButton.addEventListener('click', () => {
+            worldClockCard.style.display = 'none';
+            calculatorCard.style.display = calculatorCard.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        calculateButton.addEventListener('click', calculateTime);
+        calculateDifferenceButton.addEventListener('click', calculateTimeDifference);
+        
+        // Tab functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to current tab and content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Check system theme preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            themeToggle.checked = true;
+            document.body.classList.add('dark-theme');
+        }
+        
+        // Set default values
+        const now = new Date();
+        startTime.value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        firstTime.value = startTime.value;
+        secondTime.value = startTime.value;
+        
+        // Initialize
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

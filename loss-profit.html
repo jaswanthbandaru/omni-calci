@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Loss/Profit Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            padding-left: 30px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 38px;
+            color: var(--secondary-color);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            text-align: left;
+            animation: fadeIn 0.6s ease-in-out;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .profit {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .loss {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .neutral {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .result-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .detail-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .history-item-profit {
+            border-left: 3px solid var(--success-color);
+        }
+
+        .history-item-loss {
+            border-left: 3px solid var(--danger-color);
+        }
+
+        .history-item-neutral {
+            border-left: 3px solid var(--warning-color);
+        }
+
+        .history-details {
+            text-align: left;
+        }
+
+        .history-result {
+            font-weight: bold;
+        }
+
+        .profit-text {
+            color: var(--success-color);
+        }
+
+        .loss-text {
+            color: var(--danger-color);
+        }
+
+        .clear-history {
+            background-color: var(--danger-color);
+            margin-top: 15px;
+        }
+
+        .clear-history:hover {
+            background-color: #c82333;
+        }
+
+        .tax-settings, .markup-section {
+            margin-top: 20px;
+            text-align: left;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .input-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .result-details {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .detail-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Loss/Profit Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('calculator')">Calculator</div>
+            <div class="tab" onclick="showTab('history')">History</div>
+            <div class="tab" onclick="showTab('settings')">Settings</div>
+        </div>
+
+        <div id="calculator" class="tab-content active">
+            <div class="input-group">
+                <label>Cost Price (₹):</label>
+                <i class="fas fa-tag"></i>
+                <input type="number" id="costPrice" placeholder="Enter cost price">
+            </div>
+
+            <div class="input-group">
+                <label>Selling Price (₹):</label>
+                <i class="fas fa-rupee-sign"></i>
+                <input type="number" id="sellingPrice" placeholder="Enter selling price">
+            </div>
+
+            <div class="markup-section">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Quantity:</label>
+                        <i class="fas fa-boxes"></i>
+                        <input type="number" id="quantity" value="1" min="1" placeholder="Enter quantity">
+                    </div>
+                    <div class="input-group">
+                        <label>Markup (%):</label>
+                        <i class="fas fa-percentage"></i>
+                        <input type="number" id="markup" placeholder="Optional markup">
+                    </div>
+                </div>
+                <button id="applyMarkup" onclick="applyMarkup()">Apply Markup</button>
+            </div>
+
+            <button onclick="calculateLossProfit()">Calculate</button>
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+
+        <div id="history" class="tab-content">
+            <div id="historyItems"></div>
+            <button class="clear-history" onclick="clearHistory()">Clear History</button>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <div class="tax-settings">
+                <h3>Tax Settings</h3>
+                <div class="input-group">
+                    <label>GST Rate (%):</label>
+                    <i class="fas fa-percent"></i>
+                    <input type="number" id="gstRate" value="18" placeholder="Enter GST rate">
+                </div>
+                <div class="input-group">
+                    <label>Currency Symbol:</label>
+                    <i class="fas fa-money-bill-wave"></i>
+                    <input type="text" id="currencySymbol" value="₹" placeholder="Enter currency symbol">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize history array
+        let calculationHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        
+        // Set initial theme
+        document.body.setAttribute('data-theme', currentTheme);
+        updateThemeToggleButton();
+        
+        // Load history
+        displayHistory();
+        
+        function toggleTheme() {
+            currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+            updateThemeToggleButton();
+        }
+        
+        function updateThemeToggleButton() {
+            const toggleButton = document.querySelector('.theme-toggle i');
+            if (currentTheme === 'dark') {
+                toggleButton.className = 'fas fa-sun';
+            } else {
+                toggleButton.className = 'fas fa-moon';
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function applyMarkup() {
+            const costPrice = parseFloat(document.getElementById('costPrice').value);
+            const markup = parseFloat(document.getElementById('markup').value);
+            
+            if (isNaN(costPrice) || costPrice <= 0) {
+                alert("Please enter a valid cost price.");
+                return;
+            }
+            
+            if (!isNaN(markup)) {
+                const suggestedSellingPrice = costPrice * (1 + (markup / 100));
+                document.getElementById('sellingPrice').value = suggestedSellingPrice.toFixed(2);
+            }
+        }
+
+        function calculateLossProfit() {
+            const costPrice = parseFloat(document.getElementById('costPrice').value);
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const gstRate = parseFloat(document.getElementById('gstRate').value) || 0;
+            const currencySymbol = document.getElementById('currencySymbol').value || '₹';
+
+            if (isNaN(costPrice) || isNaN(sellingPrice) || costPrice <= 0) {
+                alert("Please enter valid values.");
+                return;
+            }
+
+            const totalCost = costPrice * quantity;
+            const totalSelling = sellingPrice * quantity;
+            const difference = totalSelling - totalCost;
+            const percentageDifference = ((difference / totalCost) * 100).toFixed(2);
+            
+            // GST calculations
+            const gstAmount = (totalSelling * (gstRate / 100)).toFixed(2);
+            const sellingPriceWithGST = (totalSelling * (1 + gstRate / 100)).toFixed(2);
+            
+            // Break-even calculation
+            const breakEvenPoint = Math.ceil(totalCost / sellingPrice);
+            
+            let resultClass, messageHeader, messageDetail;
+
+            if (difference > 0) {
+                resultClass = "profit";
+                messageHeader = `Profit: ${currencySymbol}${difference.toFixed(2)}`;
+                messageDetail = `You've made a profit of ${percentageDifference}% on your investment.`;
+            } else if (difference < 0) {
+                resultClass = "loss";
+                messageHeader = `Loss: ${currencySymbol}${Math.abs(difference).toFixed(2)}`;
+                messageDetail = `You've incurred a loss of ${Math.abs(percentageDifference)}% on your investment.`;
+            } else {
+                resultClass = "neutral";
+                messageHeader = "No profit, no loss.";
+                messageDetail = "Your selling price equals your cost price.";
+            }
+
+            // Create result HTML
+            const resultHTML = `
+                <div class="result-value">${messageHeader}</div>
+                <div>${messageDetail}</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Total Cost</div>
+                        <div class="detail-value">${currencySymbol}${totalCost.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Total Selling</div>
+                        <div class="detail-value">${currencySymbol}${totalSelling.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">With GST (${gstRate}%)</div>
+                        <div class="detail-value">${currencySymbol}${sellingPriceWithGST}</div>
+                    </div>
+                </div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Per Unit</div>
+                        <div class="detail-value">${quantity} units</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">GST Amount</div>
+                        <div class="detail-value">${currencySymbol}${gstAmount}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Break-even</div>
+                        <div class="detail-value">${breakEvenPoint} units</div>
+                    </div>
+                </div>
+            `;
+
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = resultHTML;
+            resultElement.style.display = 'block';
+            resultElement.className = `result ${resultClass}`;
+
+            // Save to history
+            saveToHistory(costPrice, sellingPrice, quantity, difference, percentageDifference, gstRate, currencySymbol);
+        }
+
+        function saveToHistory(costPrice, sellingPrice, quantity, difference, percentageDifference, gstRate, currencySymbol) {
+            const now = new Date();
+            const calculation = {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                costPrice: costPrice,
+                sellingPrice: sellingPrice,
+                quantity: quantity,
+                difference: difference,
+                percentageDifference: percentageDifference,
+                gstRate: gstRate,
+                currencySymbol: currencySymbol
+            };
+            
+            calculationHistory.unshift(calculation); // Add to beginning of array
+            
+            // Keep only the last 10 calculations
+            if (calculationHistory.length > 10) {
+                calculationHistory.pop();
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+            
+            // Update history display
+            displayHistory();
+        }
+
+        function displayHistory() {
+            const historyContainer = document.getElementById('historyItems');
+            historyContainer.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                historyContainer.innerHTML = '<p>No calculation history yet.</p>';
+                return;
+            }
+            
+            calculationHistory.forEach((item, index) => {
+                let itemClass, resultText;
+                
+                if (item.difference > 0) {
+                    itemClass = 'history-item-profit';
+                    resultText = `<span class="profit-text">Profit: ${item.currencySymbol}${item.difference.toFixed(2)}</span>`;
+                } else if (item.difference < 0) {
+                    itemClass = 'history-item-loss';
+                    resultText = `<span class="loss-text">Loss: ${item.currencySymbol}${Math.abs(item.difference).toFixed(2)}</span>`;
+                } else {
+                    itemClass = 'history-item-neutral';
+                    resultText = 'No profit, no loss';
+                }
+                
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${itemClass}`;
+                historyItem.onclick = () => loadHistoryItem(index);
+                
+                historyItem.innerHTML = `
+                    <div class="history-details">
+                        <div>${item.date} at ${item.time}</div>
+                        <div>${item.currencySymbol}${item.costPrice} → ${item.currencySymbol}${item.sellingPrice} (×${item.quantity})</div>
+                    </div>
+                    <div class="history-result">${resultText}</div>
+                `;
+                
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        function loadHistoryItem(index) {
+            const item = calculationHistory[index];
+            
+            // Fill the form with the history data
+            document.getElementById('costPrice').value = item.costPrice;
+            document.getElementById('sellingPrice').value = item.sellingPrice;
+            document.getElementById('quantity').value = item.quantity;
+            document.getElementById('gstRate').value = item.gstRate;
+            document.getElementById('currencySymbol').value = item.currencySymbol;
+            
+            // Switch to calculator tab
+            showTab('calculator');
+            
+            // Calculate again to show the result
+            calculateLossProfit();
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all calculation history?')) {
+                calculationHistory = [];
+                localStorage.removeItem('calculationHistory');
+                displayHistory();
+            }
+        }
+    </script>
+</body>
+</html>

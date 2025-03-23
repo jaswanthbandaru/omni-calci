@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Equation Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+            --success-color: #198754;
+            --error-color: #dc3545;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+            --success-color: #20c997;
+            --error-color: #ff6b6b;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .equation-display {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        #randomButton {
+            background-color: var(--secondary-color);
+        }
+
+        #randomButton:hover {
+            background-color: #5a6268;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .steps {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .steps h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .steps p {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .toggle-steps {
+            background-color: var(--secondary-color);
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .toggle-steps:hover {
+            background-color: #5a6268;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .discriminant-info {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .positive {
+            color: var(--success-color);
+        }
+
+        .zero {
+            color: var(--primary-color);
+        }
+
+        .negative {
+            color: var(--error-color);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+        <h1>Quadratic Equation Solver</h1>
+        <div class="equation-display" id="equationDisplay">ax² + bx + c = 0</div>
+        
+        <div class="input-row">
+            <div class="input-group">
+                <label for="a">a:</label>
+                <input type="number" id="a" step="any" placeholder="Enter a" value="1" oninput="updateEquation()">
+            </div>
+            <div class="input-group">
+                <label for="b">b:</label>
+                <input type="number" id="b" step="any" placeholder="Enter b" value="0" oninput="updateEquation()">
+            </div>
+            <div class="input-group">
+                <label for="c">c:</label>
+                <input type="number" id="c" step="any" placeholder="Enter c" value="0" oninput="updateEquation()">
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button onclick="solveQuadratic()">Solve Equation</button>
+            <button id="randomButton" onclick="generateRandom()">Random Values</button>
+        </div>
+        
+        <div id="discriminantInfo" class="discriminant-info"></div>
+        <div id="result" class="result">Enter coefficients and click Solve</div>
+        
+        <div class="toggle-steps" onclick="toggleSteps()">Show Solution Steps</div>
+        <div id="steps" class="steps">
+            <h3>Solution Steps</h3>
+            <div id="stepsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Update the equation display as the user types
+        function updateEquation() {
+            const a = document.getElementById('a').value || '1';
+            const b = document.getElementById('b').value || '0';
+            const c = document.getElementById('c').value || '0';
+            
+            let equation = '';
+            
+            // Format a term
+            if (a == 1) equation += 'x²';
+            else if (a == -1) equation += '-x²';
+            else equation += `${a}x²`;
+            
+            // Format b term
+            if (b > 0) equation += ` + ${b == 1 ? '' : b}x`;
+            else if (b < 0) equation += ` - ${b == -1 ? '' : Math.abs(b)}x`;
+            
+            // Format c term
+            if (c > 0) equation += ` + ${c}`;
+            else if (c < 0) equation += ` - ${Math.abs(c)}`;
+            
+            // Add equals zero
+            equation += ' = 0';
+            
+            document.getElementById('equationDisplay').textContent = equation;
+        }
+        
+        // Solve the quadratic equation
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            
+            if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                document.getElementById('result').textContent = 'Please enter valid coefficients.';
+                return;
+            }
+            
+            if (a === 0) {
+                document.getElementById('result').textContent = 'This is not a quadratic equation (a = 0).';
+                document.getElementById('discriminantInfo').style.display = 'none';
+                return;
+            }
+            
+            // Calculate the discriminant
+            const discriminant = b * b - 4 * a * c;
+            showDiscriminantInfo(discriminant);
+            
+            let result = '';
+            let stepsContent = '';
+            
+            // Add steps for the solution
+            stepsContent += `<p>Step 1: Identify the coefficients of the quadratic equation ax² + bx + c = 0</p>`;
+            stepsContent += `<p>a = ${a}, b = ${b}, c = ${c}</p>`;
+            
+            stepsContent += `<p>Step 2: Calculate the discriminant using the formula: b² - 4ac</p>`;
+            stepsContent += `<p>Discriminant = ${b}² - 4 × ${a} × ${c} = ${b*b} - ${4*a*c} = ${discriminant}</p>`;
+            
+            if (discriminant > 0) {
+                // Two real solutions
+                const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                
+                result = `Solutions: x₁ = ${x1.toFixed(4)}, x₂ = ${x2.toFixed(4)}`;
+                
+                stepsContent += `<p>Step 3: Since the discriminant is positive, there are two real solutions.</p>`;
+                stepsContent += `<p>Using the quadratic formula: x = (-b ± √(b² - 4ac)) / (2a)</p>`;
+                stepsContent += `<p>x₁ = (-${b} + √${discriminant}) / (2 × ${a})</p>`;
+                stepsContent += `<p>x₁ = (${-b} + ${Math.sqrt(discriminant).toFixed(4)}) / ${2*a}</p>`;
+                stepsContent += `<p>x₁ = ${(-b + Math.sqrt(discriminant)).toFixed(4)} / ${2*a} = ${x1.toFixed(4)}</p>`;
+                stepsContent += `<p>x₂ = (-${b} - √${discriminant}) / (2 × ${a})</p>`;
+                stepsContent += `<p>x₂ = (${-b} - ${Math.sqrt(discriminant).toFixed(4)}) / ${2*a}</p>`;
+                stepsContent += `<p>x₂ = ${(-b - Math.sqrt(discriminant)).toFixed(4)} / ${2*a} = ${x2.toFixed(4)}</p>`;
+            } else if (discriminant === 0) {
+                // One real solution (repeated)
+                const x = -b / (2 * a);
+                
+                result = `Solution: x = ${x.toFixed(4)} (repeated root)`;
+                
+                stepsContent += `<p>Step 3: Since the discriminant is zero, there is one repeated solution.</p>`;
+                stepsContent += `<p>Using the simplified formula: x = -b / (2a)</p>`;
+                stepsContent += `<p>x = -${b} / (2 × ${a})</p>`;
+                stepsContent += `<p>x = ${-b} / ${2*a} = ${x.toFixed(4)}</p>`;
+            } else {
+                // Complex solutions
+                const realPart = -b / (2 * a);
+                const imagPart = Math.sqrt(Math.abs(discriminant)) / (2 * a);
+                
+                result = `Solutions: x₁ = ${realPart.toFixed(4)} + ${imagPart.toFixed(4)}i, x₂ = ${realPart.toFixed(4)} - ${imagPart.toFixed(4)}i`;
+                
+                stepsContent += `<p>Step 3: Since the discriminant is negative, there are two complex solutions.</p>`;
+                stepsContent += `<p>Using the quadratic formula with complex numbers: x = (-b ± √(|b² - 4ac|)i) / (2a)</p>`;
+                stepsContent += `<p>Real part = -${b} / (2 × ${a}) = ${realPart.toFixed(4)}</p>`;
+                stepsContent += `<p>Imaginary part = √${Math.abs(discriminant)} / (2 × ${a}) = ${imagPart.toFixed(4)}</p>`;
+                stepsContent += `<p>x₁ = ${realPart.toFixed(4)} + ${imagPart.toFixed(4)}i</p>`;
+                stepsContent += `<p>x₂ = ${realPart.toFixed(4)} - ${imagPart.toFixed(4)}i</p>`;
+            }
+            
+            document.getElementById('result').textContent = result;
+            document.getElementById('stepsContent').innerHTML = stepsContent;
+        }
+        
+        // Show discriminant information
+        function showDiscriminantInfo(discriminant) {
+            const discInfo = document.getElementById('discriminantInfo');
+            discInfo.style.display = 'block';
+            
+            if (discriminant > 0) {
+                discInfo.innerHTML = `Discriminant: <span class="positive">${discriminant.toFixed(2)} > 0</span> (Two distinct real solutions)`;
+            } else if (discriminant === 0) {
+                discInfo.innerHTML = `Discriminant: <span class="zero">${discriminant.toFixed(2)} = 0</span> (One repeated real solution)`;
+            } else {
+                discInfo.innerHTML = `Discriminant: <span class="negative">${discriminant.toFixed(2)} < 0</span> (Two complex solutions)`;
+            }
+        }
+        
+        // Toggle solution steps visibility
+        function toggleSteps() {
+            const steps = document.getElementById('steps');
+            if (steps.style.display === 'none' || steps.style.display === '') {
+                steps.style.display = 'block';
+                document.querySelector('.toggle-steps').textContent = 'Hide Solution Steps';
+            } else {
+                steps.style.display = 'none';
+                document.querySelector('.toggle-steps').textContent = 'Show Solution Steps';
+            }
+        }
+        
+        // Generate random coefficients
+        function generateRandom() {
+            const a = (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 10) + 1;
+            const b = Math.floor(Math.random() * 21) - 10;
+            const c = Math.floor(Math.random() * 21) - 10;
+            
+            document.getElementById('a').value = a;
+            document.getElementById('b').value = b;
+            document.getElementById('c').value = c;
+            
+            updateEquation();
+            solveQuadratic();
+        }
+        
+        // Toggle between light and dark themes
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+            }
+        }
+        
+        // Initialize the equation display
+        updateEquation();
+    </script>
+</body>
+</html>

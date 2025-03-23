@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chit Fund Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        input, button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            text-align: left;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Chit Fund Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <label>Total Chit Value:</label>
+        <input type="number" id="totalChitValue" placeholder="Enter total chit value">
+
+        <label>Bid Amount:</label>
+        <input type="number" id="bidAmount" placeholder="Enter bid amount">
+
+        <label>Total Participants:</label>
+        <input type="number" id="totalParticipants" placeholder="Enter number of participants">
+
+        <label>Current Month:</label>
+        <input type="number" id="currentMonth" placeholder="Enter current month">
+
+        <button onclick="calculateChit()">Calculate</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const theme = document.body.getAttribute('data-theme');
+            const toggleButton = document.querySelector('.theme-toggle i');
+            if (theme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                toggleButton.className = 'fas fa-sun';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                toggleButton.className = 'fas fa-moon';
+            }
+        }
+
+        function calculateChit() {
+            const totalChitValue = parseFloat(document.getElementById('totalChitValue').value);
+            const bidAmount = parseFloat(document.getElementById('bidAmount').value);
+            const totalParticipants = parseInt(document.getElementById('totalParticipants').value);
+            const currentMonth = parseInt(document.getElementById('currentMonth').value);
+
+            if (isNaN(totalChitValue) || isNaN(bidAmount) || isNaN(totalParticipants) || isNaN(currentMonth) ||
+                currentMonth > totalParticipants || currentMonth < 1) {
+                alert("Please enter valid values.");
+                return;
+            }
+
+            const commission = 0.04 * totalChitValue;
+            const profitPerPerson = (bidAmount - commission) / totalParticipants;
+            const baseInstallment = totalChitValue / totalParticipants;
+            const nextInstallment = baseInstallment - profitPerPerson;
+
+            document.getElementById('result').innerHTML = `
+                <p>Amount to be Paid: ₹${(totalChitValue - bidAmount).toFixed(2)}</p>
+                <p>Commission: ₹${commission.toFixed(2)}</p>
+                <p>Profit Per Person: ₹${profitPerPerson.toFixed(2)}</p>
+                <p>Next Installment: ₹${nextInstallment.toFixed(2)}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

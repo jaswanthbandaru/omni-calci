@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number System Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .result-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-family: monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+
+        .error {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            .results {
+                grid-template-columns: 1fr;
+            }
+            .theme-toggle {
+                width: 36px;
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Number System Converter</h1>
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="inputValue">Enter Value:</label>
+                <input type="text" id="inputValue" placeholder="Enter a number" autocomplete="off">
+                <div id="inputError" class="error"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="inputBase">Input Number System:</label>
+                <select id="inputBase">
+                    <option value="2">Binary (Base 2)</option>
+                    <option value="8">Octal (Base 8)</option>
+                    <option value="10" selected>Decimal (Base 10)</option>
+                    <option value="16">Hexadecimal (Base 16)</option>
+                    <option value="custom">Custom Base</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="customBaseInput" style="display: none;">
+                <label for="customBase">Custom Base (2-36):</label>
+                <input type="number" id="customBase" min="2" max="36" value="2">
+                <div id="customBaseError" class="error"></div>
+            </div>
+
+            <div>
+                <button id="convertBtn">Convert</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Theme toggling
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Set initial theme based on user preference or localStorage
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDarkScheme.matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Custom base toggle
+        const inputBase = document.getElementById('inputBase');
+        const customBaseInput = document.getElementById('customBaseInput');
+        
+        inputBase.addEventListener('change', () => {
+            if (inputBase.value === 'custom') {
+                customBaseInput.style.display = 'block';
+            } else {
+                customBaseInput.style.display = 'none';
+            }
+        });
+
+        // Conversion functionality
+        const inputValue = document.getElementById('inputValue');
+        const customBase = document.getElementById('customBase');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const results = document.getElementById('results');
+        const inputError = document.getElementById('inputError');
+        const customBaseError = document.getElementById('customBaseError');
+
+        // Valid digits for conversions
+        const validDigits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        function isValidNumber(num, base) {
+            const validCharsForBase = validDigits.substring(0, base);
+            const regex = new RegExp(`^[${validCharsForBase}]+$`, 'i');
+            return regex.test(num);
+        }
+
+        function convertNumber() {
+            // Clear previous errors
+            inputError.textContent = '';
+            customBaseError.textContent = '';
+            
+            // Get input values
+            let value = inputValue.value.trim().toUpperCase();
+            if (!value) {
+                inputError.textContent = 'Please enter a value';
+                return;
+            }
+
+            // Determine base
+            let base;
+            if (inputBase.value === 'custom') {
+                base = parseInt(customBase.value);
+                if (isNaN(base) || base < 2 || base > 36) {
+                    customBaseError.textContent = 'Base must be between 2 and 36';
+                    return;
+                }
+            } else {
+                base = parseInt(inputBase.value);
+            }
+
+            // Validate input for the selected base
+            if (!isValidNumber(value, base)) {
+                inputError.textContent = `Invalid ${base === 10 ? 'decimal' : base === 2 ? 'binary' : base === 8 ? 'octal' : base === 16 ? 'hexadecimal' : `base-${base}`} number`;
+                return;
+            }
+
+            // Convert to decimal first
+            let decimal;
+            try {
+                decimal = parseInt(value, base);
+                if (isNaN(decimal)) throw new Error('Conversion error');
+            } catch (e) {
+                inputError.textContent = 'Conversion error. Check your input.';
+                return;
+            }
+
+            // Clear previous results
+            results.innerHTML = '';
+
+            // Add results for standard bases
+            addResultItem('Binary (Base 2)', decimal.toString(2));
+            addResultItem('Octal (Base 8)', decimal.toString(8));
+            addResultItem('Decimal (Base 10)', decimal.toString(10));
+            addResultItem('Hexadecimal (Base 16)', decimal.toString(16).toUpperCase());
+
+            // Add additional bases that might be useful
+            addResultItem('Base 3', decimal.toString(3));
+            addResultItem('Base 4', decimal.toString(4));
+            addResultItem('Base 12', decimal.toString(12).toUpperCase());
+            addResultItem('Base 32', decimal.toString(32).toUpperCase());
+            addResultItem('Base 36', decimal.toString(36).toUpperCase());
+        }
+
+        function addResultItem(title, value) {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+            
+            const resultTitle = document.createElement('div');
+            resultTitle.className = 'result-title';
+            resultTitle.textContent = title;
+            
+            const resultValue = document.createElement('div');
+            resultValue.className = 'result-value';
+            resultValue.textContent = value;
+            
+            resultItem.appendChild(resultTitle);
+            resultItem.appendChild(resultValue);
+            results.appendChild(resultItem);
+        }
+
+        function clearForm() {
+            inputValue.value = '';
+            inputBase.value = '10';
+            customBase.value = '2';
+            customBaseInput.style.display = 'none';
+            results.innerHTML = '';
+            inputError.textContent = '';
+            customBaseError.textContent = '';
+        }
+
+        // Event listeners
+        convertBtn.addEventListener('click', convertNumber);
+        clearBtn.addEventListener('click', clearForm);
+        
+        // Also convert on Enter key
+        inputValue.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertNumber();
+            }
+        });
+    </script>
+</body>
+</html>

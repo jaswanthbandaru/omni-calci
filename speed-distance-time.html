@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Distance Time Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #333333;
+            --primary-color: #4361ee;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            --icon-color: #ffffff;
+            --success-color: #4caf50;
+            --info-color: #2196f3;
+            --heading-color: #3a0ca3;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-color: #4895ef;
+            --secondary-color: #8d99ae;
+            --border-color: #3d4852;
+            --input-bg: #2d3748;
+            --card-bg: #1e293b;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            --icon-color: #f0f0f0;
+            --success-color: #81c784;
+            --info-color: #64b5f6;
+            --heading-color: #90e0ef;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 90%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--heading-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background-color: var(--primary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            background-color: var(--heading-color);
+        }
+
+        .theme-toggle:active {
+            transform: translateY(1px);
+        }
+
+        .calculation-mode {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 0 25px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-option {
+            background-color: var(--input-bg);
+            padding: 12px 20px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: none;
+            color: var(--text-color);
+            position: relative;
+        }
+
+        .mode-option:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            height: 50%;
+            width: 1px;
+            background-color: var(--border-color);
+        }
+
+        .mode-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .mode-option:hover:not(.active) {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 75px 12px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        input::placeholder {
+            color: var(--secondary-color);
+            opacity: 0.7;
+        }
+
+        .unit-selector {
+            position: absolute;
+            right: 1px;
+            top: 36px;
+            width: auto;
+            padding: 10px;
+            border-radius: 0 9px 9px 0;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: none;
+            border-left: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        [data-theme="dark"] .unit-selector {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px 0 25px 0;
+        }
+
+        button:hover {
+            background-color: var(--heading-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result {
+            background-color: var(--input-bg);
+            margin: 0 0 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            font-weight: 500;
+            line-height: 1.6;
+            animation: fadeIn 0.6s ease-in-out;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-text {
+            color: var(--info-color);
+            padding: 12px;
+            border-radius: 10px;
+            background-color: rgba(33, 150, 243, 0.1);
+            font-size: 0.9rem;
+            margin: 5px 0 25px 0;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .history {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .history h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--heading-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .history h3::before {
+            content: '\f017';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .history-list {
+            max-height: 180px;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .history-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Custom scrollbar */
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 576px) {
+            .container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .calculation-mode {
+                flex-direction: column;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .mode-option:not(:last-child)::after {
+                display: none;
+            }
+
+            .mode-option {
+                padding: 10px;
+            }
+
+            .unit-selector {
+                padding: 9px 8px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Speed Distance Time Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <div class="calculation-mode">
+            <div class="mode-option active" data-mode="speed" onclick="setMode('speed')">Calculate Speed</div>
+            <div class="mode-option" data-mode="distance" onclick="setMode('distance')">Calculate Distance</div>
+            <div class="mode-option" data-mode="time" onclick="setMode('time')">Calculate Time</div>
+        </div>
+
+        <div id="inputs-container">
+            <!-- Speed Mode -->
+            <div id="speed-inputs" class="input-container">
+                <div class="input-group">
+                    <label for="distance-for-speed">Distance</label>
+                    <input type="number" id="distance-for-speed" step="0.01" placeholder="Enter distance value">
+                    <select id="distance-unit" class="unit-selector">
+                        <option value="km">kilometers</option>
+                        <option value="mi">miles</option>
+                        <option value="m">meters</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="time-for-speed">Time</label>
+                    <input type="number" id="time-for-speed" step="0.01" placeholder="Enter time value">
+                    <select id="time-unit-speed" class="unit-selector">
+                        <option value="hr">hours</option>
+                        <option value="min">minutes</option>
+                        <option value="sec">seconds</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Distance Mode (hidden by default) -->
+            <div id="distance-inputs" class="input-container" style="display:none;">
+                <div class="input-group">
+                    <label for="speed-for-distance">Speed</label>
+                    <input type="number" id="speed-for-distance" step="0.01" placeholder="Enter speed value">
+                    <select id="speed-unit-distance" class="unit-selector">
+                        <option value="km/h">km/h</option>
+                        <option value="mph">mph</option>
+                        <option value="m/s">m/s</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="time-for-distance">Time</label>
+                    <input type="number" id="time-for-distance" step="0.01" placeholder="Enter time value">
+                    <select id="time-unit-distance" class="unit-selector">
+                        <option value="hr">hours</option>
+                        <option value="min">minutes</option>
+                        <option value="sec">seconds</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Time Mode (hidden by default) -->
+            <div id="time-inputs" class="input-container" style="display:none;">
+                <div class="input-group">
+                    <label for="distance-for-time">Distance</label>
+                    <input type="number" id="distance-for-time" step="0.01" placeholder="Enter distance value">
+                    <select id="distance-unit-time" class="unit-selector">
+                        <option value="km">kilometers</option>
+                        <option value="mi">miles</option>
+                        <option value="m">meters</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="speed-for-time">Speed</label>
+                    <input type="number" id="speed-for-time" step="0.01" placeholder="Enter speed value">
+                    <select id="speed-unit-time" class="unit-selector">
+                        <option value="km/h">km/h</option>
+                        <option value="mph">mph</option>
+                        <option value="m/s">m/s</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="calculate()">Calculate</button>
+
+        <div id="result" class="result">Your calculation results will appear here</div>
+        
+        <div class="info-text">
+            <i class="fas fa-info-circle"></i> Speed = Distance ÷ Time &nbsp;|&nbsp; Distance = Speed × Time &nbsp;|&nbsp; Time = Distance ÷ Speed
+        </div>
+        
+        <div class="history">
+            <h3>Calculation History</h3>
+            <div id="history-list" class="history-list">
+                <div class="history-item">No calculations yet. Your history will appear here.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Current calculation mode (speed, distance, or time)
+        let currentMode = 'speed';
+        let calculationHistory = [];
+        
+        // Toggle between light and dark theme
+        function toggleTheme() {
+            const theme = document.body.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            
+            // Update icon based on theme
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+        
+        // Set the calculation mode (speed, distance, or time)
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update UI to show active mode
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`.mode-option[data-mode="${mode}"]`).classList.add('active');
+            
+            // Show relevant input fields based on mode
+            document.getElementById('speed-inputs').style.display = 'none';
+            document.getElementById('distance-inputs').style.display = 'none';
+            document.getElementById('time-inputs').style.display = 'none';
+            
+            if (mode === 'speed') {
+                document.getElementById('speed-inputs').style.display = 'block';
+            } else if (mode === 'distance') {
+                document.getElementById('distance-inputs').style.display = 'block';
+            } else if (mode === 'time') {
+                document.getElementById('time-inputs').style.display = 'block';
+            }
+        }
+        
+        // Perform the calculation based on current mode and inputs
+        function calculate() {
+            try {
+                let result, resultText, historyEntry;
+                
+                // Calculate speed
+                if (currentMode === 'speed') {
+                    const distance = parseFloat(document.getElementById('distance-for-speed').value);
+                    const time = parseFloat(document.getElementById('time-for-speed').value);
+                    const distanceUnit = document.getElementById('distance-unit').value;
+                    const timeUnit = document.getElementById('time-unit-speed').value;
+                    
+                    validateInputs(distance, time);
+                    
+                    // Convert time to hours based on unit
+                    let timeInHours = time;
+                    if (timeUnit === 'min') timeInHours = time / 60;
+                    if (timeUnit === 'sec') timeInHours = time / 3600;
+                    
+                    // Calculate speed in the distance unit per hour
+                    result = distance / timeInHours;
+                    
+                    // Format results based on units
+                    let speedUnit;
+                    if (distanceUnit === 'km' && timeUnit === 'hr') speedUnit = 'km/h';
+                    else if (distanceUnit === 'mi' && timeUnit === 'hr') speedUnit = 'mph';
+                    else if (distanceUnit === 'm' && timeUnit === 'sec') speedUnit = 'm/s';
+                    else speedUnit = `${distanceUnit}/${timeUnit}`;
+                    
+                    resultText = `<strong>Speed:</strong> ${result.toFixed(2)} ${speedUnit}`;
+                    
+                    // Additional conversions
+                    let conversions = [];
+                    if (distanceUnit === 'km' && timeUnit === 'hr') {
+                        conversions.push(`${(result / 1.609).toFixed(2)} mph`);
+                        conversions.push(`${(result / 3.6).toFixed(2)} m/s`);
+                    } else if (distanceUnit === 'mi' && timeUnit === 'hr') {
+                        conversions.push(`${(result * 1.609).toFixed(2)} km/h`);
+                        conversions.push(`${(result * 0.447).toFixed(2)} m/s`);
+                    }
+                    
+                    if (conversions.length > 0) {
+                        resultText += `<br><strong>Conversions:</strong> ${conversions.join(' | ')}`;
+                    }
+                    
+                    historyEntry = `Calculated Speed: ${distance} ${distanceUnit} ÷ ${time} ${timeUnit} = ${result.toFixed(2)} ${speedUnit}`;
+                }
+                
+                // Calculate distance
+                else if (currentMode === 'distance') {
+                    const speed = parseFloat(document.getElementById('speed-for-distance').value);
+                    const time = parseFloat(document.getElementById('time-for-distance').value);
+                    const speedUnit = document.getElementById('speed-unit-distance').value;
+                    const timeUnit = document.getElementById('time-unit-distance').value;
+                    
+                    validateInputs(speed, time);
+                    
+                    // Convert time to the appropriate unit for calculation
+                    let timeMultiplier = 1;
+                    if (speedUnit === 'km/h' && timeUnit === 'min') timeMultiplier = 1/60;
+                    else if (speedUnit === 'km/h' && timeUnit === 'sec') timeMultiplier = 1/3600;
+                    else if (speedUnit === 'mph' && timeUnit === 'min') timeMultiplier = 1/60;
+                    else if (speedUnit === 'mph' && timeUnit === 'sec') timeMultiplier = 1/3600;
+                    else if (speedUnit === 'm/s' && timeUnit === 'min') timeMultiplier = 60;
+                    else if (speedUnit === 'm/s' && timeUnit === 'hr') timeMultiplier = 3600;
+                    
+                    result = speed * time * timeMultiplier;
+                    
+                    // Determine distance unit based on speed unit
+                    let distanceUnit;
+                    if (speedUnit === 'km/h') distanceUnit = 'kilometers';
+                    else if (speedUnit === 'mph') distanceUnit = 'miles';
+                    else if (speedUnit === 'm/s') distanceUnit = 'meters';
+                    
+                    resultText = `<strong>Distance:</strong> ${result.toFixed(2)} ${distanceUnit}`;
+                    
+                    historyEntry = `Calculated Distance: ${speed} ${speedUnit} × ${time} ${timeUnit} = ${result.toFixed(2)} ${distanceUnit}`;
+                }
+                
+                // Calculate time
+                else if (currentMode === 'time') {
+                    const distance = parseFloat(document.getElementById('distance-for-time').value);
+                    const speed = parseFloat(document.getElementById('speed-for-time').value);
+                    const distanceUnit = document.getElementById('distance-unit-time').value;
+                    const speedUnit = document.getElementById('speed-unit-time').value;
+                    
+                    validateInputs(distance, speed);
+                    
+                    // Check units are compatible
+                    if ((distanceUnit === 'km' && speedUnit === 'km/h') || 
+                        (distanceUnit === 'mi' && speedUnit === 'mph') || 
+                        (distanceUnit === 'm' && speedUnit === 'm/s')) {
+                        result = distance / speed;
+                    } else {
+                        // Convert units
+                        let convertedSpeed = speed;
+                        if (distanceUnit === 'km' && speedUnit === 'mph') {
+                            convertedSpeed = speed * 1.609;
+                        } else if (distanceUnit === 'mi' && speedUnit === 'km/h') {
+                            convertedSpeed = speed / 1.609;
+                        } else if (distanceUnit === 'km' && speedUnit === 'm/s') {
+                            convertedSpeed = speed * 3.6;
+                        } else if (distanceUnit === 'm' && speedUnit === 'km/h') {
+                            convertedSpeed = speed / 3.6;
+                        }
+                        result = distance / convertedSpeed;
+                    }
+                    
+                    // Determine time unit based on result
+                    let timeUnit = 'hours';
+                    let timeValue = result;
+                    
+                    // Convert to appropriate unit for display
+                    if (result < 1/60) {
+                        timeUnit = 'seconds';
+                        timeValue = result * 3600;
+                    } else if (result < 1) {
+                        timeUnit = 'minutes';
+                        timeValue = result * 60;
+                    }
+                    
+                    resultText = `<strong>Time:</strong> ${timeValue.toFixed(2)} ${timeUnit}`;
+                    
+                    // Add time in different formats
+                    if (result >= 1) {
+                        const hours = Math.floor(result);
+                        const minutes = Math.floor((result - hours) * 60);
+                        const seconds = Math.floor(((result - hours) * 60 - minutes) * 60);
+                        resultText += `<br><strong>Or:</strong> ${hours}h ${minutes}m ${seconds}s`;
+                    }
+                    
+                    historyEntry = `Calculated Time: ${distance} ${distanceUnit} ÷ ${speed} ${speedUnit} = ${timeValue.toFixed(2)} ${timeUnit}`;
+                }
+                
+                // Update result display
+                document.getElementById('result').innerHTML = resultText;
+                
+                // Add to history
+                addToHistory(historyEntry);
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<span style="color: #e74c3c;"><i class="fas fa-exclamation-circle"></i> ${error.message}</span>`;
+            }
+        }
+        
+        // Validate inputs to ensure they are positive numbers
+        function validateInputs(...values) {
+            for (const value of values) {
+                if (isNaN(value)) {
+                    throw new Error("Please enter valid numbers for all fields.");
+                }
+                if (value <= 0) {
+                    throw new Error("All values must be positive numbers.");
+                }
+            }
+        }
+        
+        // Add a calculation to the history
+        function addToHistory(calculation) {
+            calculationHistory.unshift(calculation);
+            if (calculationHistory.length > 10) {
+                calculationHistory.pop();
+            }
+            updateHistoryDisplay();
+        }
+        
+        // Update the history display
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'history-item';
+                emptyItem.textContent = 'No calculations yet. Your history will appear here.';
+                historyList.appendChild(emptyItem);
+                return;
+            }
+            
+            calculationHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.textContent = item;
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setMode('speed');
+            
+            // Set initial theme icon
+            const theme = document.body.getAttribute('data-theme');
+            const icon = document.querySelector('.theme-toggle i');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            }
+        });
+    </script>
+</body>
+</html>

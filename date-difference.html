@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Difference Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --input-bg: #fff;
+            --card-bg: #fff;
+            --border-color: #ddd;
+            --shadow: 0 4px 10px rgba(0,0,0,0.1);
+            --icon-color: #fff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --text-color: #f4f4f9;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --input-bg: #333;
+            --card-bg: #2c2c2c;
+            --border-color: #444;
+            --shadow: 0 4px 10px rgba(0,0,0,0.4);
+            --icon-color: #fff;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        input, button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px auto;
+            display: block;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            background-color: var(--card-bg);
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            font-weight: bold;
+            animation: fadeIn 0.6s ease-in-out;
+            text-align: left;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            input, button {
+                width: 90%;
+                margin: 8px auto;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <header>
+            <h1>Date Difference Calculator</h1>
+            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <label>Start Date:</label>
+        <input type="date" id="startDate">
+
+        <label>End Date:</label>
+        <input type="date" id="endDate">
+
+        <button onclick="calculateDateDifference()">Calculate Difference</button>
+
+        <label>Days Until a Specific Date:</label>
+        <input type="date" id="futureDate">
+
+        <button onclick="daysUntil()">Calculate Days</button>
+
+        <div id="result" class="result">Results will appear here.</div>
+    </div>
+    <script>
+        function toggleTheme() {
+            const theme = document.body.getAttribute('data-theme');
+            const icon = document.querySelector('.theme-toggle i');
+            if (theme === 'light') {
+                document.body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        function calculateDateDifference() {
+            const start = new Date(document.getElementById('startDate').value);
+            const end = new Date(document.getElementById('endDate').value);
+            if (isNaN(start) || isNaN(end)) return alert('Please enter valid dates.');
+            const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            document.getElementById('result').innerHTML = `<p>Days Difference: ${diff} days</p>`;
+        }
+
+        function daysUntil() {
+            const future = new Date(document.getElementById('futureDate').value);
+            const today = new Date();
+            if (isNaN(future) || future <= today) return alert('Please enter a valid future date.');
+            const daysLeft = Math.ceil((future - today) / (1000 * 60 * 60 * 24));
+            document.getElementById('result').innerHTML = `<p>Days Until Date: ${daysLeft} days</p>`;
+        }
+    </script>
+</body>
+</html>

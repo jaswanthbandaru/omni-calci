@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --icon-color: #ffffff;
+            --success-color: #198754;
+            --info-color: #0dcaf0;
+            --warning-color: #ffc107;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --input-bg: #343a40;
+            --card-bg: #343a40;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --icon-color: #ffffff;
+            --success-color: #20c997;
+            --info-color: #0dcaf0;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary-color);
+            color: var(--icon-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        #sampleButton {
+            background-color: var(--secondary-color);
+        }
+
+        #sampleButton:hover {
+            background-color: #5a6268;
+        }
+
+        #clearButton {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+
+        #clearButton:hover {
+            background-color: #e0a800;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 700;
+        }
+
+        .visual-container {
+            margin-top: 20px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: none;
+        }
+
+        .bar {
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            color: white;
+            font-size: 0.9rem;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-description {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .frequency-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .frequency-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .frequency-row input {
+            width: 50%;
+            margin-right: 10px;
+        }
+
+        .frequency-row button {
+            width: 40px;
+            margin-top: 0;
+            background-color: var(--danger-color);
+        }
+
+        #addValueBtn {
+            background-color: var(--success-color);
+            margin-bottom: 15px;
+        }
+
+        .data-points-container {
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+        <h1>Statistics Calculator</h1>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab(event, 'simpleData')">Simple Data</div>
+            <div class="tab" onclick="openTab(event, 'frequencyData')">Frequency Data</div>
+        </div>
+        
+        <div id="simpleData" class="tab-content active">
+            <div class="input-description">
+                Enter numbers separated by commas, spaces, or new lines.
+            </div>
+            
+            <div class="input-group">
+                <label for="data">Data Values:</label>
+                <textarea id="data" placeholder="Ex: 12, 15, 18, 20, 22, 25, 30"></textarea>
+                <div id="dataError" class="error-message">Please enter valid numeric data.</div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="sampleButton" onclick="loadSampleData()">Load Sample Data</button>
+                <button id="clearButton" onclick="clearData()">Clear</button>
+                <button onclick="calculateStatistics('simple')">Calculate</button>
+            </div>
+        </div>
+        
+        <div id="frequencyData" class="tab-content">
+            <div class="input-description">
+                Enter each value and its frequency. Use the "Add Value" button to add more rows.
+            </div>
+            
+            <div id="frequencyInputs" class="data-points-container">
+                <div class="frequency-row">
+                    <input type="number" class="value-input" placeholder="Value" step="any">
+                    <input type="number" class="frequency-input" placeholder="Frequency" min="1" value="1">
+                </div>
+            </div>
+            
+            <button id="addValueBtn" onclick="addFrequencyRow()">
+                <i class="fas fa-plus"></i> Add Value
+            </button>
+            
+            <div class="action-buttons">
+                <button id="sampleFreqButton" onclick="loadSampleFrequencyData()">Load Sample Data</button>
+                <button id="clearButton" onclick="clearFrequencyData()">Clear</button>
+                <button onclick="calculateStatistics('frequency')">Calculate</button>
+            </div>
+        </div>
+        
+        <div id="resultContainer" class="result-container" style="display: none;">
+            <div class="result-row">
+                <span class="result-label">Count:</span>
+                <span class="result-value" id="count">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Sum:</span>
+                <span class="result-value" id="sum">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Mean:</span>
+                <span class="result-value" id="mean">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Median:</span>
+                <span class="result-value" id="median">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Mode:</span>
+                <span class="result-value" id="mode">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Range:</span>
+                <span class="result-value" id="range">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Variance:</span>
+                <span class="result-value" id="variance">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Standard Deviation:</span>
+                <span class="result-value" id="stdDev">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Minimum:</span>
+                <span class="result-value" id="min">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Maximum:</span>
+                <span class="result-value" id="max">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Q1 (25th percentile):</span>
+                <span class="result-value" id="q1">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Q3 (75th percentile):</span>
+                <span class="result-value" id="q3">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">IQR (Interquartile Range):</span>
+                <span class="result-value" id="iqr">-</span>
+            </div>
+        </div>
+        
+        <div id="visualContainer" class="visual-container">
+            <h3>Data Distribution</h3>
+            <div id="barGraph"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab navigation
+        function openTab(evt, tabName) {
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            evt.currentTarget.classList.add("active");
+            document.getElementById(tabName).classList.add("active");
+            
+            // Hide results when switching tabs
+            document.getElementById("resultContainer").style.display = "none";
+            document.getElementById("visualContainer").style.display = "none";
+        }
+        
+        // Add a new frequency row
+        function addFrequencyRow() {
+            const container = document.getElementById("frequencyInputs");
+            const newRow = document.createElement("div");
+            newRow.className = "frequency-row";
+            newRow.innerHTML = `
+                <input type="number" class="value-input" placeholder="Value" step="any">
+                <input type="number" class="frequency-input" placeholder="Frequency" min="1" value="1">
+            `;
+            container.appendChild(newRow);
+        }
+        
+        // Clear data inputs
+        function clearData() {
+            document.getElementById("data").value = "";
+            document.getElementById("dataError").style.display = "none";
+            document.getElementById("resultContainer").style.display = "none";
+            document.getElementById("visualContainer").style.display = "none";
+        }
+        
+        // Clear frequency data inputs
+        function clearFrequencyData() {
+            const container = document.getElementById("frequencyInputs");
+            container.innerHTML = `
+                <div class="frequency-row">
+                    <input type="number" class="value-input" placeholder="Value" step="any">
+                    <input type="number" class="frequency-input" placeholder="Frequency" min="1" value="1">
+                </div>
+            `;
+            document.getElementById("resultContainer").style.display = "none";
+            document.getElementById("visualContainer").style.display = "none";
+        }
+        
+        // Load sample data for simple input
+        function loadSampleData() {
+            document.getElementById("data").value = "42, 65, 73, 58, 46, 65, 73, 81, 59, 65, 42, 58, 73, 65, 50";
+        }
+        
+        // Load sample data for frequency input
+        function loadSampleFrequencyData() {
+            const container = document.getElementById("frequencyInputs");
+            container.innerHTML = "";
+            
+            const sampleData = [
+                {value: 10, frequency: 5},
+                {value: 15, frequency: 8},
+                {value: 20, frequency: 12},
+                {value: 25, frequency: 10},
+                {value: 30, frequency: 7},
+                {value: 35, frequency: 3}
+            ];
+            
+            sampleData.forEach(item => {
+                const newRow = document.createElement("div");
+                newRow.className = "frequency-row";
+                newRow.innerHTML = `
+                    <input type="number" class="value-input" placeholder="Value" step="any" value="${item.value}">
+                    <input type="number" class="frequency-input" placeholder="Frequency" min="1" value="${item.frequency}">
+                `;
+                container.appendChild(newRow);
+            });
+        }
+        
+        // Parse simple data input
+        function parseSimpleData() {
+            const input = document.getElementById("data").value;
+            
+            if (!input.trim()) {
+                document.getElementById("dataError").style.display = "block";
+                return null;
+            }
+            
+            // Split by commas, spaces, or new lines and filter out empty strings
+            const values = input.split(/[\s,\n]+/).filter(val => val.trim() !== "");
+            
+            // Convert to numbers and filter out invalid ones
+            const numbers = values.map(val => parseFloat(val)).filter(val => !isNaN(val));
+            
+            if (numbers.length === 0) {
+                document.getElementById("dataError").style.display = "block";
+                return null;
+            }
+            
+            document.getElementById("dataError").style.display = "none";
+            return numbers;
+        }
+        
+        // Parse frequency data input
+        function parseFrequencyData() {
+            const rows = document.querySelectorAll(".frequency-row");
+            const expandedData = [];
+            
+            for (const row of rows) {
+                const valueInput = row.querySelector(".value-input");
+                const frequencyInput = row.querySelector(".frequency-input");
+                
+                const value = parseFloat(valueInput.value);
+                const frequency = parseInt(frequencyInput.value);
+                
+                if (!isNaN(value) && !isNaN(frequency) && frequency > 0) {
+                    // Repeat the value according to its frequency
+                    for (let i = 0; i < frequency; i++) {
+                        expandedData.push(value);
+                    }
+                }
+            }
+            
+            if (expandedData.length === 0) {
+                alert("Please enter valid data and frequencies");
+                return null;
+            }
+            
+            return expandedData;
+        }
+        
+        // Calculate quartiles
+        function calculateQuartile(sortedData, percentile) {
+            const position = (sortedData.length - 1) * percentile;
+            const lowerIndex = Math.floor(position);
+            const upperIndex = Math.ceil(position);
+            
+            if (lowerIndex === upperIndex) {
+                return sortedData[lowerIndex];
+            }
+            
+            const weight = position - lowerIndex;
+            return sortedData[lowerIndex] * (1 - weight) + sortedData[upperIndex] * weight;
+        }
+        
+        // Calculate mode
+        function calculateMode(data) {
+            const frequency = {};
+            let maxFrequency = 0;
+            let modes = [];
+            
+            for (const value of data) {
+                frequency[value] = (frequency[value] || 0) + 1;
+                
+                if (frequency[value] > maxFrequency) {
+                    maxFrequency = frequency[value];
+                    modes = [value];
+                } else if (frequency[value] === maxFrequency) {
+                    modes.push(value);
+                }
+            }
+            
+            // If all values appear the same number of times, there is no mode
+            if (Object.keys(frequency).length === modes.length) {
+                return "No mode";
+            }
+            
+            // Format the modes nicely
+            return modes.map(m => m.toFixed(2)).join(", ");
+        }
+        
+        // Create a simplified histogram
+        function createVisual(data) {
+            const container = document.getElementById("visualContainer");
+            const barGraph = document.getElementById("barGraph");
+            barGraph.innerHTML = "";
+            
+            // Simple frequency counting for visualization
+            const frequency = {};
+            for (const value of data) {
+                // Round to nearest integer for grouping
+                const roundedValue = Math.round(value);
+                frequency[roundedValue] = (frequency[roundedValue] || 0) + 1;
+            }
+            
+            // Find max frequency for scaling
+            const maxFreq = Math.max(...Object.values(frequency));
+            
+            // Sort the keys numerically
+            const sortedKeys = Object.keys(frequency).map(Number).sort((a, b) => a - b);
+            
+            // Create bars for each value
+            for (const key of sortedKeys) {
+                const freq = frequency[key];
+                const width = Math.max(5, (freq / maxFreq) * 100);
+                
+                const bar = document.createElement("div");
+                bar.className = "bar";
+                bar.style.width = `${width}%`;
+                bar.textContent = `${key}: ${freq}`;
+                barGraph.appendChild(bar);
+            }
+            
+            container.style.display = "block";
+        }
+        
+        // Main calculation function
+        function calculateStatistics(type) {
+            let data;
+            
+            if (type === 'simple') {
+                data = parseSimpleData();
+            } else {
+                data = parseFrequencyData();
+            }
+            
+            if (!data || data.length === 0) {
+                return;
+            }
+            
+            // Sort data for various calculations
+            const sortedData = [...data].sort((a, b) => a - b);
+            const count = data.length;
+            
+            // Basic statistics
+            const sum = data.reduce((acc, val) => acc + val, 0);
+            const mean = sum / count;
+            
+            // Median
+            let median;
+            if (count % 2 === 0) {
+                median = (sortedData[count / 2 - 1] + sortedData[count / 2]) / 2;
+            } else {
+                median = sortedData[Math.floor(count / 2)];
+            }
+            
+            // Variance and Standard Deviation
+            const variance = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / count;
+            const stdDev = Math.sqrt(variance);
+            
+            // Min, Max, Range
+            const min = sortedData[0];
+            const max = sortedData[count - 1];
+            const range = max - min;
+            
+            // Quartiles and IQR
+            const q1 = calculateQuartile(sortedData, 0.25);
+            const q3 = calculateQuartile(sortedData, 0.75);
+            const iqr = q3 - q1;
+            
+            // Mode
+            const mode = calculateMode(data);
+            
+            // Display results
+            document.getElementById("count").textContent = count;
+            document.getElementById("sum").textContent = sum.toFixed(2);
+            document.getElementById("mean").textContent = mean.toFixed(4);
+            document.getElementById("median").textContent = median.toFixed(4);
+            document.getElementById("mode").textContent = mode;
+            document.getElementById("range").textContent = range.toFixed(4);
+            document.getElementById("variance").textContent = variance.toFixed(4);
+            document.getElementById("stdDev").textContent = stdDev.toFixed(4);
+            document.getElementById("min").textContent = min.toFixed(4);
+            document.getElementById("max").textContent = max.toFixed(4);
+            document.getElementById("q1").textContent = q1.toFixed(4);
+            document.getElementById("q3").textContent = q3.toFixed(4);
+            document.getElementById("iqr").textContent = iqr.toFixed(4);
+            
+            document.getElementById("resultContainer").style.display = "block";
+            
+            // Create visual representation
+            createVisual(data);
+        }
+        
+        // Toggle between light and dark themes
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+            }
+        }
+    </script>
+</body>
+</html>

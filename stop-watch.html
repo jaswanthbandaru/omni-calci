@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Stopwatch & Timer</title>
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-container: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #eee;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #222;
+            --bg-container: #333;
+            --text-primary: #f5f5f5;
+            --text-secondary: #ccc;
+            --border-color: #444;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 10px;
+        }
+        
+        .container {
+            background-color: var(--bg-container);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            padding: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .mode-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .mode-btn {
+            padding: 8px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-primary);
+            flex: 1;
+            transition: background-color 0.3s;
+        }
+        
+        .mode-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .display {
+            font-size: 40px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--text-primary);
+            font-family: monospace;
+        }
+        
+        .small-display {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 80px;
+        }
+        
+        @media (max-width: 480px) {
+            button {
+                min-width: 70px;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .display {
+                font-size: 32px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #lapBtn, #addTimeBtn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        #resetBtn, #subtractTimeBtn {
+            background-color: #9E9E9E;
+            color: white;
+        }
+        
+        .laps-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            text-align: left;
+        }
+        
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .lap-number {
+            font-weight: bold;
+        }
+        
+        .lap-time {
+            font-family: monospace;
+        }
+        
+        .theme-selector {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .theme-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .theme-option:hover {
+            transform: scale(1.2);
+        }
+        
+        .theme-option.active {
+            border-color: var(--text-primary);
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-left: 10px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .countdown-inputs {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .time-input {
+            width: 60px;
+            text-align: center;
+            padding: 8px 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .time-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .input-label {
+            font-size: 12px;
+            margin-bottom: 3px;
+            color: var(--text-secondary);
+        }
+        
+        /* Show relevant elements based on mode */
+        .stopwatch-mode .timer-controls,
+        .stopwatch-mode .countdown-inputs {
+            display: none;
+        }
+        
+        .timer-mode .stopwatch-controls {
+            display: none;
+        }
+        
+        @media (max-width: 360px) {
+            .countdown-inputs {
+                flex-wrap: wrap;
+            }
+            
+            .time-input {
+                width: 50px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container stopwatch-mode" id="mainContainer">
+        <div class="header">
+            <h1 class="title">Stopwatch & Timer</h1>
+            <div class="toggle-container">
+                <span>☀️</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span>🌙</span>
+            </div>
+        </div>
+        
+        <div class="mode-controls">
+            <button class="mode-btn active" id="stopwatchMode">Stopwatch</button>
+            <button class="mode-btn" id="timerMode">Timer</button>
+        </div>
+        
+        <!-- Common display -->
+        <div class="display" id="display">00:00:00.000</div>
+        <div class="small-display" id="smallDisplay">Last lap: --:--:--.---</div>
+        
+        <!-- Countdown timer inputs -->
+        <div class="countdown-inputs">
+            <div class="input-group">
+                <label class="input-label">Hours</label>
+                <input type="number" class="time-input" id="hoursInput" min="0" max="23" value="0">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Minutes</label>
+                <input type="number" class="time-input" id="minutesInput" min="0" max="59" value="5">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Seconds</label>
+                <input type="number" class="time-input" id="secondsInput" min="0" max="59" value="0">
+            </div>
+        </div>
+        
+        <!-- Stopwatch controls -->
+        <div class="controls stopwatch-controls">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn" disabled>Stop</button>
+            <button id="lapBtn" disabled>Lap</button>
+            <button id="resetBtn" disabled>Reset</button>
+        </div>
+        
+        <!-- Timer controls -->
+        <div class="controls timer-controls">
+            <button id="timerStartBtn">Start</button>
+            <button id="timerStopBtn" disabled>Stop</button>
+            <button id="addTimeBtn" disabled>+1 Min</button>
+            <button id="subtractTimeBtn" disabled>-1 Min</button>
+            <button id="timerResetBtn">Reset</button>
+        </div>
+        
+        <!-- Laps container (only for stopwatch) -->
+        <div class="laps-container" id="lapsContainer">
+            <!-- Lap times will be added here -->
+        </div>
+        
+        <div class="theme-selector">
+            <div class="theme-option active" style="background-color: #4CAF50;" data-theme="green"></div>
+            <div class="theme-option" style="background-color: #2196F3;" data-theme="blue"></div>
+            <div class="theme-option" style="background-color: #9C27B0;" data-theme="purple"></div>
+            <div class="theme-option" style="background-color: #FF5722;" data-theme="orange"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const mainContainer = document.getElementById('mainContainer');
+        const display = document.getElementById('display');
+        const smallDisplay = document.getElementById('smallDisplay');
+        
+        // Stopwatch elements
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapsContainer = document.getElementById('lapsContainer');
+        
+        // Timer elements
+        const timerStartBtn = document.getElementById('timerStartBtn');
+        const timerStopBtn = document.getElementById('timerStopBtn');
+        const addTimeBtn = document.getElementById('addTimeBtn');
+        const subtractTimeBtn = document.getElementById('subtractTimeBtn');
+        const timerResetBtn = document.getElementById('timerResetBtn');
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        
+        // Mode and theme elements
+        const stopwatchMode = document.getElementById('stopwatchMode');
+        const timerMode = document.getElementById('timerMode');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        
+        // Stopwatch variables
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let running = false;
+        let laps = [];
+        let lastLapTime = 0;
+        
+        // Timer variables
+        let countdownTime = 0;
+        let timerRunning = false;
+        let timerEndTime = 0;
+        
+        // Format time for display
+        function formatTime(ms, showMs = true) {
+            if (ms < 0) ms = 0;
+            
+            const date = new Date(ms);
+            const hours = date.getUTCHours().toString().padStart(2, '0');
+            const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+            const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
+            
+            return showMs ? 
+                `${hours}:${minutes}:${seconds}.${milliseconds}` : 
+                `${hours}:${minutes}:${seconds}`;
+        }
+        
+        // Stopwatch functions
+        function updateStopwatchDisplay() {
+            const currentTime = running ? Date.now() - startTime + elapsedTime : elapsedTime;
+            display.textContent = formatTime(currentTime);
+        }
+        
+        function startStopwatch() {
+            if (!running) {
+                running = true;
+                startTime = Date.now();
+                timerInterval = setInterval(updateStopwatchDisplay, 10);
+                
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                lapBtn.disabled = false;
+                resetBtn.disabled = false;
+            }
+        }
+        
+        function stopStopwatch() {
+            if (running) {
+                running = false;
+                clearInterval(timerInterval);
+                elapsedTime += Date.now() - startTime;
+                
+                startBtn.disabled = false;
+                startBtn.textContent = 'Resume';
+                stopBtn.disabled = true;
+                lapBtn.disabled = true;
+            }
+        }
+        
+        function resetStopwatch() {
+            running = false;
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            startTime = 0;
+            laps = [];
+            lastLapTime = 0;
+            
+            display.textContent = '00:00:00.000';
+            smallDisplay.textContent = 'Last lap: --:--:--.---';
+            lapsContainer.innerHTML = '';
+            
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start';
+            stopBtn.disabled = true;
+            lapBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
+        
+        function addLap() {
+            if (running) {
+                const currentTime = Date.now() - startTime + elapsedTime;
+                const lapTime = currentTime - lastLapTime;
+                lastLapTime = currentTime;
+                
+                laps.push({
+                    total: currentTime,
+                    lap: lapTime
+                });
+                
+                const lapNumber = laps.length;
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                lapItem.innerHTML = `
+                    <span class="lap-number">Lap ${lapNumber}</span>
+                    <span class="lap-time">Lap: ${formatTime(lapTime)}</span>
+                    <span class="lap-time">Total: ${formatTime(currentTime)}</span>
+                `;
+                
+                lapsContainer.insertBefore(lapItem, lapsContainer.firstChild);
+                smallDisplay.textContent = `Last lap: ${formatTime(lapTime)}`;
+            }
+        }
+        
+        // Timer functions
+        function calculateTimerMilliseconds() {
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            
+            return ((hours * 60 * 60) + (minutes * 60) + seconds) * 1000;
+        }
+        
+        function updateTimerDisplay() {
+            if (timerRunning) {
+                const remaining = timerEndTime - Date.now();
+                
+                if (remaining <= 0) {
+                    // Timer finished
+                    display.textContent = '00:00:00';
+                    stopTimer();
+                    playAlarm();
+                    return;
+                }
+                
+                display.textContent = formatTime(remaining, false);
+            } else {
+                display.textContent = formatTime(countdownTime, false);
+            }
+        }
+        
+        function startTimer() {
+            if (!timerRunning) {
+                if (countdownTime <= 0) {
+                    countdownTime = calculateTimerMilliseconds();
+                    if (countdownTime <= 0) return; // Don't start if time is zero
+                }
+                
+                timerRunning = true;
+                timerEndTime = Date.now() + countdownTime;
+                timerInterval = setInterval(updateTimerDisplay, 100);
+                
+                timerStartBtn.disabled = true;
+                timerStopBtn.disabled = false;
+                addTimeBtn.disabled = false;
+                subtractTimeBtn.disabled = false;
+                
+                // Disable inputs while timer is running
+                hoursInput.disabled = true;
+                minutesInput.disabled = true;
+                secondsInput.disabled = true;
+                
+                smallDisplay.textContent = 'Timer running';
+            }
+        }
+        
+        function stopTimer() {
+            if (timerRunning) {
+                timerRunning = false;
+                clearInterval(timerInterval);
+                countdownTime = Math.max(0, timerEndTime - Date.now());
+                
+                timerStartBtn.disabled = false;
+                timerStartBtn.textContent = 'Resume';
+                timerStopBtn.disabled = true;
+                
+                smallDisplay.textContent = 'Timer paused';
+            }
+        }
+        
+        function resetTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            
+            // Reset to input values
+            countdownTime = calculateTimerMilliseconds();
+            display.textContent = formatTime(countdownTime, false);
+            
+            // Enable inputs
+            hoursInput.disabled = false;
+            minutesInput.disabled = false;
+            secondsInput.disabled = false;
+            
+            timerStartBtn.disabled = false;
+            timerStartBtn.textContent = 'Start';
+            timerStopBtn.disabled = true;
+            addTimeBtn.disabled = true;
+            subtractTimeBtn.disabled = true;
+            
+            smallDisplay.textContent = 'Timer reset';
+        }
+        
+        function adjustTimer(minutes) {
+            const adjustment = minutes * 60 * 1000; // Convert minutes to ms
+            
+            if (timerRunning) {
+                // Adjust end time
+                timerEndTime += adjustment;
+                countdownTime = Math.max(0, timerEndTime - Date.now());
+            } else {
+                // Adjust countdown time directly
+                countdownTime = Math.max(0, countdownTime + adjustment);
+                display.textContent = formatTime(countdownTime, false);
+            }
+        }
+        
+        function playAlarm() {
+            // Create a simple beeping sound
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = context.createOscillator();
+                const gainNode = context.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(context.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.5;
+                
+                oscillator.start();
+                
+                // Beep pattern
+                setTimeout(() => {
+                    oscillator.stop();
+                    smallDisplay.textContent = 'Timer finished!';
+                }, 1000);
+            } catch (e) {
+                // Fallback if audio context is not available
+                smallDisplay.textContent = 'Timer finished!';
+            }
+        }
+        
+        // Toggle between stopwatch and timer modes
+        function setStopwatchMode() {
+            mainContainer.className = 'container stopwatch-mode';
+            stopwatchMode.classList.add('active');
+            timerMode.classList.remove('active');
+            resetStopwatch();
+        }
+        
+        function setTimerMode() {
+            mainContainer.className = 'container timer-mode';
+            timerMode.classList.add('active');
+            stopwatchMode.classList.remove('active');
+            resetTimer();
+        }
+        
+        // Theme functions
+        function toggleDarkMode() {
+            document.documentElement.setAttribute('data-theme', 
+                themeToggle.checked ? 'dark' : 'light');
+        }
+        
+        // Event listeners
+        // Stopwatch controls
+        startBtn.addEventListener('click', startStopwatch);
+        stopBtn.addEventListener('click', stopStopwatch);
+        resetBtn.addEventListener('click', resetStopwatch);
+        lapBtn.addEventListener('click', addLap);
+        
+        // Timer controls
+        timerStartBtn.addEventListener('click', startTimer);
+        timerStopBtn.addEventListener('click', stopTimer);
+        timerResetBtn.addEventListener('click', resetTimer);
+        addTimeBtn.addEventListener('click', () => adjustTimer(1));
+        subtractTimeBtn.addEventListener('click', () => adjustTimer(-1));
+        
+        // Mode switching
+        stopwatchMode.addEventListener('click', setStopwatchMode);
+        timerMode.addEventListener('click', setTimerMode);
+        
+        // Dark/light theme toggle
+        themeToggle.addEventListener('change', toggleDarkMode);
+        
+        // Update timer display when inputs change
+        [hoursInput, minutesInput, secondsInput].forEach(input => {
+            input.addEventListener('change', () => {
+                countdownTime = calculateTimerMilliseconds();
+                display.textContent = formatTime(countdownTime, false);
+            });
+            
+            // Ensure values stay within valid ranges
+            input.addEventListener('blur', function() {
+                const min = parseInt(this.min);
+                const max = parseInt(this.max);
+                const value = parseInt(this.value) || 0;
+                
+                if (value < min) this.value = min;
+                if (value > max) this.value = max;
+            });
+        });
+        
+        // Color theme switcher
+        themeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                themeOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Change button colors based on theme
+                let color;
+                switch(theme) {
+                    case 'blue':
+                        color = '#2196F3';
+                        break;
+                    case 'purple':
+                        color = '#9C27B0';
+                        break;
+                    case 'orange':
+                        color = '#FF5722';
+                        break;
+                    default:
+                        color = '#4CAF50'; // Green (default)
+                }
+                
+                // Update button colors for both modes
+                startBtn.style.backgroundColor = color;
+                lapBtn.style.backgroundColor = color;
+                timerStartBtn.style.backgroundColor = color;
+                addTimeBtn.style.backgroundColor = color;
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Only handle shortcuts if not in an input field
+            if (e.target.tagName === 'INPUT') return;
+            
+            const isStopwatchMode = mainContainer.classList.contains('stopwatch-mode');
+            
+            switch(e.key) {
+                case ' ': // Space
+                    if (isStopwatchMode) {
+                        if (running) {
+                            stopStopwatch();
+                        } else {
+                            startStopwatch();
+                        }
+                    } else {
+                        if (timerRunning) {
+                            stopTimer();
+                        } else {
+                            startTimer();
+                        }
+                    }
+                    e.preventDefault(); // Prevent page scroll
+                    break;
+                    
+                case 'l': // L
+                    if (isStopwatchMode && running) {
+                        addLap();
+                    }
+                    break;
+                    
+                case 'r': // R
+                    if (isStopwatchMode) {
+                        resetStopwatch();
+                    } else {
+                        resetTimer();
+                    }
+                    break;
+                    
+                case 'c': // C
+                    if (isStopwatchMode) {
+                        setTimerMode();
+                    } else {
+                        setStopwatchMode();
+                    }
+                    break;
+                    
+                case 't': // T
+                    themeToggle.checked = !themeToggle.checked;
+                    toggleDarkMode();
+                    break;
+            }
+        });
+        
+        // Initialize with default values
+        resetStopwatch();
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
